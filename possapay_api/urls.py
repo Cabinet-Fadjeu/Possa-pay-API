@@ -15,8 +15,19 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
+from .consumers import PayNotificationConsumer
+from . import settings
+from django.conf.urls.static import static
+
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('api/', include("api.url"), name= "api"),
+]
+
+
+websocket_urlpatterns = [
+    path("ws/pay-notifications/", PayNotificationConsumer.as_asgi(),)
 ]

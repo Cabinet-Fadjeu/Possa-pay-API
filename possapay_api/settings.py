@@ -67,8 +67,8 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'possapay_api.wsgi.application'
-
+# WSGI_APPLICATION = 'possapay_api.wsgi.application'
+ASGI_APPLICATION = 'possapay_api.routing.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
