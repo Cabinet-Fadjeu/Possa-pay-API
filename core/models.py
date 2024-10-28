@@ -2,6 +2,7 @@
 from django.db import models
 import uuid
 from django.utils.translation import gettext as _
+from django.core.validators import RegexValidator
 from userAuth.models import CustomUser
 
 RETREAT_STATE = (
@@ -75,17 +76,6 @@ class Transfer(models.Model):
 
 
 # ----------------modele possa pay (cagnot) -----------
-# Create your models here.
-# from datetime import date, datetime
-# from django.db import models
-
-# import uuid
-# from django.core.validators import RegexValidator
-# from django.utils import timezone
-# from django.utils.translation import gettext_lazy as _
-
-# from userAuth.models import CustomUser
-# Create your models here.
 
 
 CAGNOTTE_STATUS = (
@@ -160,7 +150,7 @@ class ContributionCagnotte(models.Model):
 
 # ----------------modele possa pay (Participant) -----------
 
-from django.core.validators import RegexValidator
+
 
 # from cagnotte.models import Cagnotte
 
@@ -241,10 +231,7 @@ class PoolRetreat(models.Model):
 # ----------------finmodele possa pay (Participant) -----------
 
 # ----------------modele possa pay (debut review) -----------
-from django.db import models
 
-import uuid
-from django.utils.translation import gettext as _
 
 # Create your models here.
 
@@ -268,7 +255,7 @@ class Review(models.Model):
 
 class ExchageRate(models.Model):
     id  = models.UUIDField(_('id'), default=uuid.uuid4, unique=True, primary_key=True, editable=False)
-    base = models.CharField(_('Base'), max_length = 5, null=True, blank=True)
+    base = models.CharField(_('Base'), max_length = 6, null=True, blank=True)
     rates = models.CharField(_('Rates'), max_length = 5, null=True, blank=True)
     values = models.CharField(_('Values'), max_length = 5, null=True, blank=True)
     date_created = models.DateTimeField(_('Date created'),auto_now_add=True)
