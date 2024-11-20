@@ -27,6 +27,9 @@ SECRET_KEY = 'django-insecure--f)#mvn6$#wbx-p(ls-qo8=gy%4=z#yo6&erbfbdcp=nq&^-8=
 DEBUG = True
 
 ALLOWED_HOSTS = []
+#origines dinamiques
+CORS_ORIGIN_ALLOW_ALL = False
+CORS_ALLOW_CREDENTIALS = True
 
 AUTH_USER_MODEL = 'userAuth.CustomUser'
 
@@ -35,6 +38,7 @@ AUTH_USER_MODEL = 'userAuth.CustomUser'
 INSTALLED_APPS = [
     'core',
     'userAuth',
+    "corsheaders",
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -45,6 +49,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    "corsheaders.middleware.CorsMiddleware",
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',

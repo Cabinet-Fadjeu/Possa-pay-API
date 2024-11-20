@@ -3,7 +3,7 @@ from django.db import models
 import uuid
 from django.utils.translation import gettext as _
 from django.core.validators import RegexValidator
-from userAuth.models import CustomUser
+from userAuth.models import CustomUser,Wallet,Service
 
 RETREAT_STATE = (
     ("PENDING", "PENDING"),
@@ -262,3 +262,42 @@ class ExchageRate(models.Model):
 
 
 # ----------------modele possa pay (fin review) -----------
+
+
+
+class Transaction(models.Model):
+    id = models.UUIDField(_('Transaction ID'), default=uuid.uuid4, unique=True, primary_key=True, editable=False)
+    sender_wallet = models.ForeignKey(Wallet, on_delete=models.CASCADE, related_name="sent_transactions", blank=True, null=True)
+    recipient_wallet = models.ForeignKey(Wallet, on_delete=models.CASCADE, related_name="received_transactions", blank=True, null=True)
+    service = models.ForeignKey(Service, on_delete=models.CASCADE, related_name="service_transactions", blank=True, null=True)
+    
+    amount = models.DecimalField(_('Transaction Amount'), max_digits=10, decimal_places=2)
+    status = models.CharField(_('Transaction Status'), max_length=20, choices=[('pending', 'Pending'), ('completed', 'Completed'), ('failed', 'Failed')], default='pending')
+    transaction_type = models.CharField(_('Transaction Type'), max_length=20, choices=[('user_to_user', 'User to User'), ('service_payment', 'Service Payment')], default='user_to_user')
+    date_created = models.DateTimeField(auto_now_add=True, verbose_name='Date Created')
+    
+    def __str__(self):
+        return f"Transaction {self.id} - {self.status} - {self.amount} USD"
+
+    def execute_transaction(self):
+        """Exécute la transaction en vérifiant le solde de l'expéditeur et en transférant le montant au destinataire ou au service."""
+        if self.sender_wallet and self.sender_wallet.amount >= self.amount:
+            # Débiter l'expéditeur
+            self.sender_wallet.amount -= self.amount
+            self.sender_wallet.save()
+
+            # Créditer le destinataire ou le portefeuille lié au service
+            if self.transaction_type == 'user_to_user' and self.recipient_wallet:
+                self.recipient_wallet.amount += self.amount
+                self.recipient_wallet.save()
+            elif self.transaction_type == 'service_payment' and self.service:
+                self.service.user.wallet.amount += self.amount
+                self.service.user.wallet.save()
+
+            # Marquer la transaction comme terminée
+            self.status = 'completed'
+            self.save()
+        else:
+            self.status = 'failed'
+            self.save()
+

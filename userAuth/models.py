@@ -5,6 +5,7 @@ from django.contrib.auth.models import  AbstractUser
 from django.utils.translation import gettext as _
 from django.core.validators import RegexValidator
 import uuid
+import secrets  # Pour générer les clés publiques et secrètes
 
 # from django_cryptography.fields import encrypt
 
@@ -38,7 +39,7 @@ class CustomUser(AbstractUser):
     
     secret_code = models.CharField(_("Secret Code"), max_length=255, blank=True, null=True)
     secret_code_status = models.BooleanField(_("Secret code set"), default=False, blank=True, null=True)
-
+    is_company = models.BooleanField(default=False, blank=True, null=True)  # Ajout du champ pour distinguer les entreprises des utilisateurs réguliers
     profile_img = models.ImageField(upload_to='profiles',blank=True, null=True)
     bio = models.TextField(null=True, blank=True)
 
@@ -68,6 +69,53 @@ class Wallet(models.Model):
     
     def __str__(self):
         return ('amount : '  +  str(self.amount))
+    
+    def deposit(self, amount):
+        """Ajoute un montant au portefeuille de l'utilisateur."""
+        self.amount += amount
+        self.save()
+
+class Compte(models.Model):
+    id  = models.UUIDField(_('id'),default=uuid.uuid4, unique=True,primary_key=True,  editable=False)
+    service_id = models.OneToOneField(CustomUser,on_delete=models.CASCADE,blank=True, unique=True, null=True)
+    amount = models.DecimalField(_('User amount'), max_digits=10, decimal_places=2, default=0.00, blank=True, null=True)
+    
+    date_created = models.DateTimeField(auto_now_add=True, verbose_name='Date Created',blank=True, null=True)
+    
+    def __str__(self):
+        return ('amount : '  +  str(self.amount))
+    
+    def deposit(self, amount):
+        """Ajoute un montant au portefeuille de l'utilisateur."""
+        self.amount += amount
+        self.save()
+
+
+class Service(models.Model):
+    id = models.UUIDField(_('id'), default=uuid.uuid4, unique=True, primary_key=True, editable=False)
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="services")
+    name = models.CharField(_('Service Name'), max_length=255)
+    description = models.TextField(_('Service Description'), blank=True, null=True)
+    public_key = models.CharField(_('Public Key'), max_length=64, unique=True, default=secrets.token_hex(32))
+    secret_key = models.CharField(_('Secret Key'), max_length=64, unique=True, default=secrets.token_hex(32))
+    compte = models.OneToOneField(Compte, on_delete=models.CASCADE, null=True, blank=True)
+    allowed_hosts = models.TextField(help_text="Liste de domaines autorisés, séparés par des virgules", blank=True, null=True)
+    date_created = models.DateTimeField(auto_now_add=True, verbose_name='Date Created', blank=True, null=True)
+
+    def __str__(self):
+        return f"Service: {self.name} - Public Key: {self.public_key}"
+
+    def receive_payment(self, amount):
+        """Effectue un dépôt dans le portefeuille de l'utilisateur associé au service."""
+        wallet = Wallet.objects.get(user_id=self.user)
+        wallet.deposit(amount)
+
+    def save(self, *args, **kwargs):
+        if not self.public_key:
+            self.public_key = uuid.uuid4().hex  # Générer une clé publique unique
+        if not self.secret_key:
+            self.secret_key = uuid.uuid4().hex  # Générer une clé secrète unique
+        super(Service, self).save(*args, **kwargs)
 
 @receiver(reset_password_token_created)
 def password_reset_token_created(sender, instance, reset_password_token, *args, **kwargs):
