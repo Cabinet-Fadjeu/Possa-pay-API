@@ -1,0 +1,135 @@
+{% extends 'partials/base.html' %} {% load static %} {% block content %}
+
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/css/intlTelInput.css"
+/>
+
+<section class="ho">
+  <main class="container">
+    {% if form.errors %}
+    <div class="alert-danger">
+      <strong>{{form.errors}}</strong>
+    </div>
+    {% endif %}
+    <h2>S'inscrire</h2>
+    <form method="post" action="">
+      {% csrf_token %}
+      <div class="input-field">
+        {{form.username}}
+        <div class="underline"></div>
+      </div>
+      <div class="input-field">
+        {{form.email}}
+        <div class="underline"></div>
+      </div>
+      <!-- <div class="input-field">
+        {{form.phone_number}}
+        <div class="underline"></div>
+      </div> -->
+      <div class="input-field">
+        {{form.password1}}
+        <div class="underline"></div>
+      </div>
+      <div class="input-field">
+        {{form.password2}}
+        <div class="underline"></div>
+      </div>
+
+      <div class="input-field">
+        <input
+          class="telephone"
+          type="tel"
+          id="phone"
+          name="phone_number"
+          required
+        />
+        <input id="pays" name="country" type="hidden" />
+        <input id="code" name="code" type="hidden" />
+        <div class="underline"></div>
+        <span id="valid-msg" class="hidden">✓ Valid</span>
+        <span id="error-msg" class="hidden"></span>
+      </div>
+
+      <!-- <input type="submit" value="Continue"> -->
+      <button type="submit" class="form_input" name="login">
+        Submit &amp; Register
+      </button>
+    </form>
+  </main>
+</section>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/intlTelInput.min.js"></script>
+<script>
+  const button = document.querySelector("#check");
+  const errorMsg = document.querySelector("#error-msg");
+  const validMsg = document.querySelector("#valid-msg");
+  var input = document.querySelector("#phone");
+  const paysInput = document.querySelector("#pays");
+  const codeInput = document.querySelector("#code");
+  const fraisInput = document.querySelector("#fraiss");
+  const entrees = document.querySelector("#inputs");
+  const inforr = document.querySelector("#infor");
+
+  var iti = window.intlTelInput(input, {
+    allowDropdown: true,
+    autoHideDialCode: false,
+    autoPlaceholder: "polite",
+    strictMode: true,
+    // dropdownContainer: document.body,
+    formatOnDisplay: false,
+    geoIpLookup: function (callback) {
+      fetch("https://ipinfo.io/json")
+        .then((response) => response.json())
+        .then((data) => callback(data.country))
+        .catch(() => callback("us"));
+    },
+    initialCountry: "auto",
+    nationalMode: true,
+    placeholderNumberType: "MOBILE",
+    preferredCountries: ["de", "fr", "cm", "us", "gb"],
+    separateDialCode: true,
+    utilsScript: "{% static 'assets/js/input/utils.js' %}",
+  });
+
+  const errorMap = [
+    "Invalid number",
+    "Invalid country code",
+    "Too short",
+    "Too long",
+    "Invalid number",
+  ];
+  const reset = () => {
+    input.classList.remove("error");
+    errorMsg.innerHTML = "";
+    errorMsg.classList.add("hidden");
+    validMsg.classList.add("hidden");
+  };
+
+  (function updateCountryInfo() {
+    const pay = iti.getSelectedCountryData().iso2;
+    const code = iti.getSelectedCountryData().dialCode;
+    paysInput.value = pay;
+    codeInput.value = code;
+  })();
+
+  input.addEventListener("countrychange", () => {
+    const pay = iti.getSelectedCountryData().iso2;
+    const code = iti.getSelectedCountryData().dialCode;
+    paysInput.value = pay;
+    codeInput.value = code;
+    console.log("pay:", pay, "code:", code);
+  });
+
+  const showError = (msg) => {
+    input.classList.add("error");
+    errorMsg.innerHTML = msg;
+    errorMsg.classList.remove("hidden");
+  };
+
+  // on keyup / change flag: reset
+  input.addEventListener("change", reset);
+  input.addEventListener("keyup", reset);
+</script>
+
+{% endblock content %}

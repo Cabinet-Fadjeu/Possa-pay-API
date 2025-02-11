@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <h1>Home</h1>
+    <h1>Homepage</h1>
+    <form method="POST" action="{% url 'core:Recharge' %}">
+      {% csrf_token %}
+      <label for="montant">Montant :</label>
+      <input
+        type="number"
+        id="montant"
+        name="montant"
+        step="0.01"
+        min="0"
+        required
+      />
+
+      <label for="payment_mode">Mode de paiement :</label>
+      <select id="payment_mode" name="payment_mode" required>
+        <option value="stripe">Stripe</option>
+        <option value="paypal">PayPal</option>
+      </select>
+
+      <button type="submit">Recharger</button>
+    </form>
+  </body>
+</html>

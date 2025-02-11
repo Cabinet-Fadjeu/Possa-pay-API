@@ -1,0 +1,36 @@
+{% extends 'partials/base.html' %} {% load static %} {% block content %}
+<!-- Section accueil commence  -->
+
+<section class="home" id="home">
+  <h1>Solde de l'utilisateur</h1>
+  <p>Montant: {{ amount }} {{ devise }}</p>
+
+  <h2>Transactions</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Récepteur</th>
+        <th>Montant</th>
+        <th>Date</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for transaction in transactions %}
+      <tr>
+        <td>{{ transaction.receiver.username }}</td>
+        <td>{{ transaction.amount }}</td>
+        <td>{{ transaction.date_created }}</td>
+        <td>{{ transaction.status }}</td>
+        <td>
+          <a href="{% url 'core:modifier_statut' transaction.id %}"
+            >Modifier Statut</a
+          >
+          {% endfor %}
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+{% endblock content %}

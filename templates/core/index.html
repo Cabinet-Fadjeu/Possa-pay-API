@@ -1,0 +1,32 @@
+{% extends 'partials/base.html' %} {% load static %} {% block content %}
+
+<!-- Home -->
+<section class="home">
+  <div class="content">
+    <h3>Simplifiez vos transactions financières avec <span>PossaPay</span></h3>
+    <p>
+      <span style="font-weight: bolder"
+        >envoyez, recevez et gérez votre argent en toute sécurité, partout et à
+        tout moment.
+      </span>
+    </p>
+    <a href="#" class="btn"><span></span>Commencer</a>
+    <div class="sci">
+      <a href="#" style="--i: 14"><i class="fa-brands fa-facebook-f"></i></a>
+      <a href="#" style="--i: 15"><i class="fa-brands fa-twitter"></i></a>
+      <a href="#" style="--i: 16"><i class="fa-brands fa-instagram"></i></a>
+    </div>
+  </div>
+
+  <div class="image">
+    <img
+      src="{% static 'assets/image/paiem1.JPG' %}"
+      alt=""
+      class="logo-silhouette"
+    />
+    <img src="{% static 'assets/image/paiem1.JPG' %}" alt="" class="moon1" />
+  </div>
+</section>
+
+<!-- Script-->
+{% endblock content %}

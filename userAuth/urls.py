@@ -1,13 +1,15 @@
 from django.urls import path,include
 
-from rest_framework_simplejwt.views import (
-    TokenObtainPairView,
-    TokenRefreshView,
-    TokenBlacklistView
-)
+# from rest_framework_simplejwt.views import (
+#     TokenObtainPairView,
+#     TokenRefreshView,
+#     TokenBlacklistView
+# )
 
 from . import views
 # from .views import ChangePasswordView
+
+app_name = "userAuth"
 
 urlpatterns = [
     # Update user profile image
@@ -15,19 +17,22 @@ urlpatterns = [
 
     # Checking user Secret code
     # path('check-secret/', views.check_secret_code),
-    path('set-secret/<str:request_type>/<uuid:user_id>/', views.set_user_secret, name='set_user_secret'),
-    #sevices demande
-    path('service/demande/<uuid:user_id>/', views.service_demand, name='service_demand'), 
-    #creat service
-    path('service/create/<uuid:user_id>/', views.create_service, name='create_service'),
+    path('set-secret/', views.set_secret_code, name='set-secret'),
+    # path('set-secret/<str:request_type>/<uuid:user_id>/', views.set_user_secret, name='set_user_secret'),
+    # #sevices demande
+    # path('service/demande/<uuid:user_id>/', views.service_demand, name='service_demand'), 
+    # #creat service
+    # path('service/create/<uuid:user_id>/', views.create_service, name='create_service'),
+    #reception des fond
+    # path('service/receive/', views.reception, name='reception'),
     # User registration Routes
-    path('register/', views.register ),
+    path('register/', views.register_view, name='register'),
     # User login Routes
-    path('login/', TokenObtainPairView.as_view(),name='token'),
+    path('login/', views.login_view,name='login'),
     # User token refresh Routes
-    path('token/refresh-token/', TokenRefreshView.as_view(),name='refresh_token'),
+    # path('token/refresh-token/', TokenRefreshView.as_view(),name='refresh_token'),
     # User logout Routes
-    path('logout/', TokenBlacklistView.as_view(),name='logout'),
+    path('logout/', views.logout_view,name='logout'),
     # path('login/', views.login),
     # User view details
     # path('user-detail/<uuid:id>/', views.userDetail),
@@ -52,7 +57,7 @@ urlpatterns = [
 
     # WALLET
     # Get user Wallet
-    path('user-wallets/<uuid:user_id>/', views.get_wallet, name='user_wallet')
+    # path('user-wallets/<uuid:user_id>/', views.get_wallet, name='user_wallet')
    
 
 ]

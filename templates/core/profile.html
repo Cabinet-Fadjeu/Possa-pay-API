@@ -1,0 +1,147 @@
+{% extends  'partials/base.html' %}
+{% load static %}
+{% block content %}
+
+<h1 class="heading ho"> <span> profile</span> </h1>
+<section class="profile flex">
+    
+<div class="mode">
+    <h1>{{request.user|title}}</h1>
+    <nav class="navbar">
+        <ul>
+            <li><button class="payment-btn red" id="cash-btn" onclick="selectPayment('cash')">Commandes</button></li>
+            <li><button class="payment-btn" id="card-btn" onclick="selectPayment('card')">Address </button></li>
+            {% if request.user.is_authenticated %}
+                <li><a href="{% url 'userAuth:logout' %}"><button>Se deconnecter</button></a></li>
+            {% else %}
+                <li><a href="{% url 'userAuth:login' %}"><button>Se connecter</button></a></li>
+                <li><a href="{% url 'userAuth:register' %}"><button>S'inscrire</button></a></li>
+            {% endif %}
+    </nav>
+</div>
+
+<section class="commandes payment-info" id="cash-info">
+    {% if orders_list %}
+        <div class="shopping-cart1">
+        <table>
+          <thead>
+              <tr>
+                  <th ><h3>Commandes</h3></th>
+                  <th><h3>Date</h3> </th>
+                  <th><h3>Status</h3> </th>
+                  <th><h3>paiement</h3> </th>
+                  <th><h3>Montant</h3></th>
+                  <th><h3>Action</h3></th>
+                  <th><h3>facture</h3></th>
+              </tr>
+          </thead>
+          <tbody>
+             {% for o in page_obj %}
+              <tr class="produit">
+                  <td><h3>{{ o.id }}</h3></td>
+                  <td><h3>{{ o.order_date }}</h3></td>
+                  <td><h3>{{ o.product_status |title }}</h3></td>
+                  {% if o.paid_status == True %}
+                    <td><i class="fas fa-check-circle text-success"></i></td>
+                  {% else %}
+                    <td><i class="fas fa-times-circle text-danger"></i></td>
+                  {% endif%}
+                  <td><span class="price"> {{o.price}} €</span></td>
+                  <td><h3> <a href="{% url 'core:order-detail' o.id %}">Details</a></h3></td>
+                  <td><h3> <a href="{% url 'core:facture' o.id %}">facture</a></h3></td>
+
+                  {% endfor %} 
+            
+              </tr> 
+          </tbody>
+      </table>
+        <span>
+        {% if page_obj.has_previous %}
+            
+            <a href="?page={{ page_obj.previous_page_number }}">précédente</a>
+        {% endif %}
+    
+        <span>
+            Page {{ page_obj.number }} sur {{ page_obj.paginator.num_pages }}.
+
+        </span>
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}">suivante</a>
+            
+        {% endif %}
+        </span>
+      </div>
+    {% else %}
+        <div class="credit">Vous n'avez aucune commande.</div>
+
+    {% endif %}
+  
+</section>
+<section class="commandes payment-info hidden" id="card-info">
+    <div>
+        <h2>Ajouter une adresse</h2>
+        <form action="" method="post">{% csrf_token %}
+            <div class="flex">
+            <td><input type="number" name="mobile" placeholder="Mobile Number" required></td>
+            <td><input type="text" name="address" placeholder="Address" required></td>
+            </div>
+            <td><button type="submit" class="btn" style="background: none;"><h3>Ajouter l'addrese</h3></button></td>
+            </form>
+    </div>
+    {% if address %}
+        <div class="shopping-cart1">
+            
+        <table>
+          <thead>
+              <tr>
+                  <th><h3>id</h3></th>
+                  <th ><h3>Telephone</h3></th>
+                  <th><h3>Adresse</h3> </th>
+                  <th><h3>Adresse par Defaut</h3> </th>
+                  <th><h3>Action</h3></th> 
+              </tr>
+          </thead>
+          <tbody>  
+             {% for a in address %}
+              <tr class="produit">
+                  <td><h3>{{ a.id }}</h3></td>
+                  <td><h3>{{ a.mobile }}</h3></td>
+                  <td><h3>{{ a.address }}</h3></td>
+                  {% if a.status == True %}
+                    <td><i data-address-id="{{ a.id }}" class="fas fa-check-circle text-success check{{ a.id }} check"></i></td>
+                    <td><button data-address-id="{{ a.id }}"  style="display: none;" class="btn make-default-address button{{ a.id }} action_btn">Make Default</button></td>
+                    
+                  {% else %}
+                  <td><i data-address-id="{{ a.id }}" style="display: none;" class="fa fa-check-circle text-success check check{{ a.id }}"></i></td>
+                  <td><button data-address-id="{{ a.id }}"   class="btn make-default-address button{{ a.id }} action_btn">Defaut</button></td>
+                
+                  {% endif%}
+              </tr> 
+             {% endfor %} 
+              
+          </tbody>
+      </table>
+        <span>
+        {% if address.has_previous %}
+            
+            <a href="?page={{ address.previous_page_number }}">précédente</a>
+        {% endif %}
+    
+        <span>
+            Page {{ address.number }} sur {{ address.paginator.num_pages }}.
+
+        </span>
+        {% if address.has_next %}
+            <a href="?page={{ address.next_page_number }}">suivante</a>
+            
+        {% endif %}
+        </span>
+      </div>
+    {% else %}
+        <div class="credit">Vous n'avez aucune Addresse.</div>
+
+    {% endif %}
+  
+</section>
+</section>
+{% endblock content %}

@@ -1,0 +1,16 @@
+{% extends 'partials/base.html' %} {% load static %} {% block content %}
+<!-- Section accueil commence  -->
+
+<section class="home" id="home">
+  <div class="content">
+    <h1>etes vous sure de vouloire valider votre transaction?</h1>
+    <div>
+      <!-- <p>etes vous sure de vouloire valider votre transaction?</p> -->
+      <form action="" method="POST">
+        {% csrf_token %}
+        <input type="hidden" name="transaction_id" value="{{ transaction.id }}" />
+        <input type="submit" value="ok" />
+    </div>
+</section>
+
+{% endblock content %}

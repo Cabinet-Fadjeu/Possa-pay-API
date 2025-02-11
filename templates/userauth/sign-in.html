@@ -1,0 +1,55 @@
+{% extends 'partials/base.html' %} {% load static %} {% block content %}
+
+<section class="home">
+  <div class="form_container">
+    <!-- Login form -->
+    <div class="form login_form">
+      <form method="post" action="">
+        {% csrf_token %}
+        <h2>Se connecter</h2>
+        <div class="input_box">
+          <input
+            type="email"
+            name="email"
+            id="email"
+            placeholder="Email"
+            required
+          />
+          <i class="uil uil-envelope-alt email"></i>
+        </div>
+        <div class="input_box">
+          <input
+            type="password"
+            name="password"
+            id="password"
+            placeholder="Mot de passe"
+            required
+          />
+          <i class="uil uil-lock password"></i>
+          <i class="uil uil-eye-slash password_icon"></i>
+        </div>
+
+        <div class="option_field">
+          <span class="checkbox">
+            <input type="checkbox" id="check" />
+            <label for="check">Souviens-toi de moi</label>
+          </span>
+          <a href="" class="forgot_pw">Mot de passe oublié ?</a>
+        </div>
+
+        <button style="color: white" class="button">
+          Connectez-vous maintenant
+        </button>
+
+        <div class="login_signup">
+          Vous n'avez pas de compte ?
+          <a href="{% url 'userAuth:register' %}" id="signup">S'inscrire</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- Script-->
+<script src="{% static 'assets/js/scriptLog.js' %}"></script>
+{% endblock content %}

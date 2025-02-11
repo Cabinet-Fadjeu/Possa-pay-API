@@ -14,14 +14,18 @@ import secrets  # Pour générer les clés publiques et secrètes
 # Import for password reset
 from django.dispatch import receiver
 #from django.urls import reverse
-from django_rest_passwordreset.signals import reset_password_token_created
+# from django_rest_passwordreset.signals import reset_password_token_created
 from django.core.mail import send_mail 
 
 # Importing user manager
 from .managers import CustomUserManager
 
 
-# Create your models here.
+CURRENCY = (
+    ("USD", "USD"),
+    ("XAF", "XAF"),
+    ("EUR", "EUR"),
+)
 
 class CustomUser(AbstractUser):
     id  = models.UUIDField(_('id'),default=uuid.uuid4, unique=True, primary_key=True, editable=False)
@@ -36,6 +40,7 @@ class CustomUser(AbstractUser):
     phone_number = models.CharField(validators=[phone_regex], max_length=17, blank=True,null=True)
     phone_verified = models.BooleanField(_("Phone Verified"), default=False)
     phone_OTP = models.CharField(_("Phone OTP"), max_length=5, blank=True,null=True)
+    country = models.CharField(max_length=100, blank=True, null=True)
     
     secret_code = models.CharField(_("Secret Code"), max_length=255, blank=True, null=True)
     secret_code_status = models.BooleanField(_("Secret code set"), default=False, blank=True, null=True)
@@ -64,7 +69,7 @@ class Wallet(models.Model):
     id  = models.UUIDField(_('id'),default=uuid.uuid4, unique=True,primary_key=True,  editable=False)
     user_id = models.OneToOneField(CustomUser,on_delete=models.CASCADE,blank=True, unique=True, null=True)
     amount = models.DecimalField(_('User amount'), max_digits=10, decimal_places=2, default=0.00, blank=True, null=True)
-    
+    devise = models.CharField(choices=CURRENCY, max_length=5,blank=True, null=True, default="XAF")
     date_created = models.DateTimeField(auto_now_add=True, verbose_name='Date Created',blank=True, null=True)
     
     def __str__(self):
@@ -77,7 +82,7 @@ class Wallet(models.Model):
 
 class Compte(models.Model):
     id  = models.UUIDField(_('id'),default=uuid.uuid4, unique=True,primary_key=True,  editable=False)
-    service_id = models.OneToOneField(CustomUser,on_delete=models.CASCADE,blank=True, unique=True, null=True)
+    # service_id = models.OneToOneField(CustomUser,on_delete=models.CASCADE,blank=True, unique=True, null=True)
     amount = models.DecimalField(_('User amount'), max_digits=10, decimal_places=2, default=0.00, blank=True, null=True)
     
     date_created = models.DateTimeField(auto_now_add=True, verbose_name='Date Created',blank=True, null=True)
@@ -113,51 +118,33 @@ class Service(models.Model):
     def save(self, *args, **kwargs):
         if not self.public_key:
             self.public_key = uuid.uuid4().hex  # Générer une clé publique unique
+            print('public',self.public_key)
         if not self.secret_key:
             self.secret_key = uuid.uuid4().hex  # Générer une clé secrète unique
+            print('public',self.public_key)
         super(Service, self).save(*args, **kwargs)
 
-@receiver(reset_password_token_created)
-def password_reset_token_created(sender, instance, reset_password_token, *args, **kwargs):
+# @receiver(reset_password_token_created)
+# def password_reset_token_created(sender, instance, reset_password_token, *args, **kwargs):
 
-    #email_plaintext_message = "{}?token={}".format(reverse('password_reset:reset-password-request'), reset_password_token.key)
-    message_body = "Your Passcode is : " + reset_password_token.key
+#     #email_plaintext_message = "{}?token={}".format(reverse('password_reset:reset-password-request'), reset_password_token.key)
+#     message_body = "Your Passcode is : " + reset_password_token.key
 
-    send_mail(
-        # title:
-        "Password Reset from {title}".format(title="Small Possa"),
-        # message:
-        #email_plaintext_message,
-        message_body,
-        # from:
-        "SmallPossa@gmail.com",
-        # to:
-        [reset_password_token.user.email]
-    )    
+#     send_mail(
+#         # title:
+#         "Password Reset from {title}".format(title="Small Possa"),
+#         # message:
+#         #email_plaintext_message,
+#         message_body,
+#         # from:
+#         "SmallPossa@gmail.com",
+#         # to:
+#         [reset_password_token.user.email]
+#     )    
 
 
 # ----------------fin modele possa pay (user) -----------
 
 
-# from django.db import models
-# # from enum import unique
-# from django.db import models
-# # from phonenumber_field.modelfields import PhoneNumberField
-# from django.contrib.auth.models import AbstractUser 
-# from django.db.models.signals import post_save
 
-
-# class User(AbstractUser):
-#     email = models.EmailField(unique=True)
-#     username = models.CharField(max_length=100)
-#     # phone_number = PhoneNumberField(null=True, blank=True) 
-
-
-#     USERNAME_FIELD = "email"
-#     REQUIRED_FIELDS = ['username','phone_number']
-
-#     def __str__(self):
-#         return self.username
-    
-# ------------------------------------------
 

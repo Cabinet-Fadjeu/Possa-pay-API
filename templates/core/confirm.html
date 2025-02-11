@@ -1,0 +1,54 @@
+{% extends 'partials/base.html' %} {% block content %}
+<div class="form-envois">
+  <div class="barre"></div>
+  <br />
+  <form method="post" action="">
+    {% csrf_token %}
+
+    <h2>Confirmation d'envoi</h2>
+    <p class="confirmt">
+      Monsieur / Madame {{ user.get_full_name }},{{request.user.username|title}}
+      vous êtes sur le point d'envoyer de l'argent à une personne ayant les
+      informations suivantes :
+    </p>
+
+    <div class="form1">
+      <p class="para">Nom du bénéficiaire : {{ transaction.receiver_name }}</p>
+      <br /><br />
+      <p class="para">Email du bénéficiaire : {{transaction.receiver_email}}</p>
+      <br /><br />
+      <p class="para">
+        Montant envoyé : {{ transaction.amount_1 }}{{transaction.currency }}
+      </p>
+      <br /><br />
+      <p class="para">
+        Montant recue : {{ transaction.receiver_amount}}
+        {{transaction.to_devise}}
+      </p>
+
+      <br /><br />
+      <p class="para">
+        Frais :{{ transaction.frais }} {{ transaction.currency }}
+      </p>
+      <br /><br />
+    </div>
+
+    <div class="form2">
+      <div class="form-group">
+        <label for="password">Mot de passe :</label>
+        <input
+          type="password"
+          name="password"
+          id="password"
+          class="input-field"
+          required
+        />
+      </div>
+
+      <div class="buttonEnvois">
+        <input type="submit" value="Confirmer" />
+      </div>
+    </div>
+  </form>
+</div>
+{% endblock content %}

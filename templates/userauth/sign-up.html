@@ -1,0 +1,176 @@
+{% extends 'partials/base.html' %} {% load static %} {% block content %}
+
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/css/intlTelInput.css"
+/>
+
+<section class="home">
+  <div class="form_container">
+    <!-- Signup form -->
+    <div class="form">
+      {% if form.errors %}
+      <div class="alert-danger">
+        <strong>{{form.errors}}</strong>
+      </div>
+      {% endif %}
+
+      <h2>S'inscrire</h2>
+      <form method="post" action="">
+        {% csrf_token %}
+        <div class="input_box">
+          {{form.username}}
+          <!-- <input
+            type="text"
+            placeholder="Entrer votre nom d'utilisateur "
+            required
+          /> -->
+          <i class="fa fa-user users" aria-hidden="true"></i>
+        </div>
+        <div class="input_box">
+          {{form.email}}
+          <!-- <input
+            type="email"
+            placeholder="Entrer votre adresse email "
+            required
+          /> -->
+          <i class="uil uil-envelope-alt email"></i>
+        </div>
+        <div class="input_box">
+          <div class="phone">
+            <input
+              type="tel"
+              id="phone"
+              name="phone_number"
+              placeholder="Entrer votre phone "
+              required
+            />
+            <input id="pays" name="country" type="hidden" />
+            <input id="code" name="code" type="hidden" />
+            <i class="uil uil-phone-alt phone"></i>
+          </div>
+        </div>
+
+        <div class="input_box">
+          {{form.password1}}
+          <!-- <input
+            type="password"
+            placeholder="Créer votre mot de passe"
+            required
+          /> -->
+          <i class="uil uil-lock password"></i>
+          <!-- <i class="uil uil-eye-slash password_icon"></i> -->
+        </div>
+        <div class="input_box">
+          {{form.password2}}
+          <!-- <input
+            type="password"
+            placeholder="Confirmer votre mot de passe"
+            required
+          /> -->
+          <i class="uil uil-lock password"></i>
+          <!-- <i class="uil uil-eye-slash password_icon"></i> -->
+        </div>
+        <div class="option_field">
+          <span class="checkbox">
+            <input type="checkbox" id="check" />
+            <label for="check">Accepter les termes et conditions</label>
+          </span>
+        </div>
+
+        <button style="color: white" class="button">
+          <!-- <a href="passwordWallet.html"> -->
+          Inscrivez-vous maintenant
+          <!-- </a> -->
+        </button>
+
+        <div class="login_signup">
+          Vous avez déjà un compte ?
+          <a href="{% url 'userAuth:login' %}" id="login" class="br"
+            >Se connecter</a
+          >
+        </div>
+      </form>
+    </div>
+    {% if form.errors %}
+    <div class="alert-danger">
+      <strong>{{form.errors}}</strong>
+    </div>
+    {% endif %}
+  </div>
+</section>
+<!-- Script-->
+<script src="scriptLog.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/intlTelInput.min.js"></script>
+<script>
+  const button = document.querySelector("#check");
+  const errorMsg = document.querySelector("#error-msg");
+  const validMsg = document.querySelector("#valid-msg");
+  var input = document.querySelector("#phone");
+  const paysInput = document.querySelector("#pays");
+  const codeInput = document.querySelector("#code");
+  const fraisInput = document.querySelector("#fraiss");
+  const entrees = document.querySelector("#inputs");
+  const inforr = document.querySelector("#infor");
+
+  var iti = window.intlTelInput(input, {
+    allowDropdown: true,
+    autoHideDialCode: false,
+    autoPlaceholder: "polite",
+    strictMode: true,
+    // dropdownContainer: document.body,
+    formatOnDisplay: false,
+    geoIpLookup: function (callback) {
+      fetch("https://ipinfo.io/json")
+        .then((response) => response.json())
+        .then((data) => callback(data.country))
+        .catch(() => callback("us"));
+    },
+    initialCountry: "auto",
+    nationalMode: true,
+    placeholderNumberType: "MOBILE",
+    preferredCountries: ["de", "fr", "cm", "us", "gb"],
+    separateDialCode: true,
+    utilsScript: "{% static 'assets/js/input/utils.js' %}",
+  });
+
+  const errorMap = [
+    "Invalid number",
+    "Invalid country code",
+    "Too short",
+    "Too long",
+    "Invalid number",
+  ];
+  const reset = () => {
+    input.classList.remove("error");
+    errorMsg.innerHTML = "";
+    errorMsg.classList.add("hidden");
+    validMsg.classList.add("hidden");
+  };
+
+  (function updateCountryInfo() {
+    const pay = iti.getSelectedCountryData().iso2;
+    const code = iti.getSelectedCountryData().dialCode;
+    paysInput.value = pay;
+    codeInput.value = code;
+  })();
+
+  input.addEventListener("countrychange", () => {
+    const pay = iti.getSelectedCountryData().iso2;
+    const code = iti.getSelectedCountryData().dialCode;
+    paysInput.value = pay;
+    codeInput.value = code;
+    console.log("pay:", pay, "code:", code);
+  });
+
+  const showError = (msg) => {
+    input.classList.add("error");
+    errorMsg.innerHTML = msg;
+    errorMsg.classList.remove("hidden");
+  };
+
+  // on keyup / change flag: reset
+  input.addEventListener("change", reset);
+  input.addEventListener("keyup", reset);
+</script>
+{% endblock content %}

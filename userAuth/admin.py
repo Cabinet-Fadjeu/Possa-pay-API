@@ -20,7 +20,7 @@ from .models import CustomUser, Wallet,Service, Compte
 # Register your models here.
 @admin.register(CustomUser)
 class CustomUserAdmin(BaseUserAdmin):
-    list_display = ('id','username', 'email', 'is_active')
+    list_display = ('id','username', 'email', 'is_active','country')
     list_filter = ('is_active',)
     readonly_fields = ('email',)
 
@@ -35,4 +35,4 @@ class ServiceAdmin(admin.ModelAdmin):
 
 @admin.register(Compte)
 class CompteAdmin(admin.ModelAdmin):
-    list_display = ('id','service_id', 'amount',)
+    list_display = ('id', 'amount',)

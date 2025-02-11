@@ -1,7 +1,7 @@
 # -----Cagnotte---
 from django.contrib import admin
 
-from .models import Cagnotte,ContributionCagnotte,RechargeWallet,Transfer,Donation,Retreat,Participant,PoolRetreat
+from .models import Cagnotte,ContributionCagnotte,RechargeWallet,Transfer,Donation,Retreat,Participant,PoolRetreat,Transaction
 
 # Register your models here.
 @admin.register(Cagnotte)
@@ -56,3 +56,9 @@ class CustomUserTransferAdmin(admin.ModelAdmin):
     list_display = ('id','user', 'amount','receiver_email')
     list_filter = ('transfer_date',)
     readonly_fields = ('id','amount','user','receiver_email')
+
+@admin.register(Transaction)
+class TransactionAdmin(admin.ModelAdmin):
+    list_display = ('id','sender','amount','currency','status')
+    list_filter = ('date_created',)
+    readonly_fields = ('id','amount',)

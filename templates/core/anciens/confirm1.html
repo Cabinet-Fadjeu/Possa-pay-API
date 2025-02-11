@@ -1,0 +1,70 @@
+{% extends 'partials/base.html' %} {% block content %}
+<section class="ho">
+  <main class="container">
+    <h2>Confirmation de la transaction</h2>
+    <p><strong>Nom du Récepteur :</strong> {{ receiver_name }}</p>
+    <p><strong>Email du Récepteur :</strong> {{ receiver_email }}*</p>
+    <p><strong>Téléphone :</strong> {{ receiver_phone }}</p>
+    <p><strong>Montant :</strong> {{ amount_1 }} {{ currency }}**</p>
+    <p><strong>Frais :</strong> {{ frais }}*</p>
+    <p><strong>Frais :</strong> {{ frais }}*</p>
+    <p><strong>Total :</strong> {{ total_amount }} {{ currency }}*</p>
+    <p><strong>receiver_type :</strong> {{ receiver_type }}**</p>
+
+    <p>le recepteur recevra {{receiver_amount}}{{to_devise}}</p>
+    <p class="note">
+      * Les champs marqués d'un astérisque sont obligatoires <br />
+    </p>
+
+    <form method="POST" action="{% url 'core:confirm-transaction' %}">
+      {% csrf_token %}
+      <input type="hidden" name="receiver_name" value="{{ receiver_name }}" />
+      <input type="hidden" name="receiver_email" value="{{ receiver_email }}" />
+      <input type="hidden" name="receiver_phone" value="{{ receiver_phone }}" />
+      <input type="hidden" name="receiver_type" value="{{ receiver_type }}" />
+      <input type="hidden" name="amount" value="{{ amount_1 }}" />
+      <input type="hidden" name="devise" value="{{ devise }}" />
+      <input type="hidden" name="frais" value="{{ frais }}" />
+      <input type="hidden" name="total_amount" value="{{ total_amount }}" />
+      <input
+        type="hidden"
+        name="receiver_amount"
+        value="{{ receiver_amount }}"
+      />
+      <input type="hidden" name="to_devise" value="{{ to_devise }}" />
+      <div class="input-field">
+        <label for="password">Mot de passe</label>
+        <input
+          type="password"
+          name="password"
+          id="password"
+          placeholder="Mot de passe"
+          required
+        />
+        <div class="underline"></div>
+      </div>
+
+      <button type="submit" class="btn-confirm">
+        Confirmer la Transaction
+      </button>
+      <a href="{% url 'core:index' %}" class="btn-cancel">Annuler</a>
+    </form>
+
+    <!-- <p><strong>Récepteur :</strong> {{ receiver_name }}</p>
+    <p><strong>Email :</strong> {{ email }}</p>
+    <p><strong>Téléphone :</strong> {{ receiver_phone }}</p>
+    <p><strong>Montant :</strong> {{ amount }} {{ currency }}</p>
+    <p><strong>Type de récepteur :</strong> {{ receiver_type }}</p>
+    <p><strong>Frais d'assurance :</strong> {{ amount_assur }}</p>
+    <p><strong>Frais d'assurance :</strong>{{ frais }}</p> -->
+
+    <!-- <form method="post" action="">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-success">Confirmer</button>
+      <a href="{% url 'core:make_transfer' %}" class="btn btn-danger"
+        >Annuler</a
+      >
+    </form> -->
+  </main>
+</section>
+{% endblock %}

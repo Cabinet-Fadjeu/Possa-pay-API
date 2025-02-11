@@ -1,0 +1,92 @@
+{% extends 'partials/base.html' %} {% load static %} {% block content %}
+
+<!-- Home -->
+
+<div class="form-envois">
+  <div class="barre"></div>
+  <br />
+  <form method="post" action="">
+    {% csrf_token %}
+    <h2>Formulaire d'envois d'argent</h2>
+    <div class="form1">
+      <label for="nomComplet"
+        >Nom Complet du bénéficiaire <span class="star">*</span></label
+      ><br />
+      <input
+        type="text"
+        id="nomComplet"
+        placeholder="Entrer votre nom complet"
+        class="inputEnvois"
+      />
+      <br /><br />
+
+      <label for="recipient_email"
+        >Email du bénéficiaire : <span class="star">*</span></label
+      >
+      <input
+        type="email"
+        id="recipient_email"
+        name="recipient_email"
+        class="inputEnvois"
+        placeholder="Email du bénéficiaire"
+      /><br /><br />
+
+      <label for="tel">Téléphone bénéficiaire <span class="star">*</span></label
+      ><br />
+      <input
+        type="tel"
+        id="tel"
+        placeholder="Entrer votre numéro Téléphone"
+        class="inputEnvois"
+      />
+      <br /><br />
+    </div>
+    <div class="form2">
+      <label for="baseAmount"
+        >Montant à envoyer (Fcfa) : <span class="star">*</span></label
+      >
+      <input
+        type="number"
+        id="baseAmount"
+        name="montant"
+        required
+        placeholder="Entrez le montant"
+        step="0.01"
+        class="inputEnvois"
+      />
+      <br /><br />
+
+      <label for="currency">Dévise en XAF (francs cfa)</label>
+      <select id="currency" disabled="disabled" name="currency" class="Envois">
+        <option value="cfa">{{ devise }}</option>
+      </select>
+      <br /><br />
+
+      <label for="selection"
+        >Type de bénéficiaire : <span class="star">*</span></label
+      >
+      <select id="receiver_type" name="receiver_type" class="">
+        <option value="">-- Sélectionnez une option --</option>
+        <option value="famille">Famille</option>
+        <option value="entreprise">Entreprise</option>
+      </select>
+    </div>
+
+    <div class="total">
+      Montant total à payer : <span id="totalAmount">0</span> Fcfa
+    </div>
+
+    <div class="buttonEnvois">
+      <button type="submit" class="button" name="submit">
+        <!-- <a href="ConfirmEnvoie.html" style="color: white"> -->
+        Envoyer
+        <!-- </a> -->
+      </button>
+    </div>
+  </form>
+</div>
+
+<!-- Script-->
+<script src="{% static 'assets/js/scriptLog.js' %}"></script>
+
+{% endblock content %}

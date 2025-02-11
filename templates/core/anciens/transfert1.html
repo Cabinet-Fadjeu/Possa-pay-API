@@ -1,0 +1,197 @@
+{% extends 'partials/base.html' %} {% load static %} {% block content %}
+<section class="ho">
+  <main class="container">
+    <h2>Envoi</h2>
+    <form method="post" action="">
+      {% csrf_token %}
+
+      <!-- Email du récepteur -->
+      <div class="input-field">
+        <label for="email">Email du récepteur</label>
+        <input
+          type="email"
+          name="email"
+          id="email"
+          placeholder="Email du récepteur"
+          required
+        />
+        <div class="underline"></div>
+      </div>
+
+      <!-- Montant -->
+      <div class="input-field">
+        <label for="montant">Montant</label>
+        <input
+          type="number"
+          name="montant"
+          id="montant"
+          min="0"
+          placeholder="Montant"
+          required
+          oninput="updateTotals()"
+        />
+        <div class="underline"></div>
+      </div>
+
+      <!-- Devise -->
+      <div class="input-field">
+        <label for="devise">Devise</label>
+        <!-- <select name="devise" id="devise" required>
+          <option value="" disabled selected>Choisir une devise</option>
+          <option value="euro">Euro</option>
+          <option value="usd">USD</option>
+          <option value="xaf">XAF</option>
+        </select> -->
+        <dev> {{ devise }} </dev>
+        <div class="underline"></div>
+      </div>
+
+      <!-- Type de récepteur -->
+      <div class="input-field">
+        <label for="receiver_type">Vous envoyez de l'argent à :</label>
+        <select
+          name="receiver_type"
+          id="receiver_type"
+          onchange="toggleInsurance()"
+          required
+        >
+          <option value="" disabled selected>Choisir une option</option>
+          <option value="entreprise">Une entreprise</option>
+          <option value="famille">Un membre de la famille</option>
+        </select>
+        <div class="underline"></div>
+      </div>
+
+      <!-- Assurance (masqué par défaut) -->
+      <div id="assurance-section" class="input-field" style="display: none">
+        <label for="assurance">Assurer la transaction</label>
+        <select
+          name="assurance"
+          id="assurance"
+          onchange="updateTotals()"
+          required
+        >
+          <option value="" disabled selected>Choisir une option</option>
+          <option value="oui">Oui</option>
+          <option value="non">Non</option>
+        </select>
+        <div class="underline"></div>
+      </div>
+
+      <!-- Montant de l'assurance (masqué par défaut) -->
+      <div id="insurance-amount" class="input-field" style="display: none">
+        <label>Montant de l'assurance</label>
+        <p id="insurance-value">0</p>
+      </div>
+
+      <!-- Montant total -->
+      <div id="total-amount" class="input-field" style="display: none">
+        <label>Montant total à payer</label>
+        <p id="total-value">0</p>
+      </div>
+
+      <!-- Mot de passe -->
+      <div class="input-field">
+        <label for="password">Mot de passe</label>
+        <input
+          type="password"
+          name="password"
+          id="password"
+          placeholder="Mot de passe"
+          required
+        />
+        <div class="underline"></div>
+      </div>
+
+      <!-- Bouton de soumission -->
+      <button type="submit" class="form_input" name="submit">Envoyer</button>
+    </form>
+  </main>
+</section>
+
+<script>
+  // Fonction pour afficher/masquer la section assurance
+  function toggleInsurance() {
+    const receiverType = document.getElementById("receiver_type").value;
+    const assuranceSection = document.getElementById("assurance-section");
+    const insuranceAmount = document.getElementById("insurance-amount");
+    const totalAmount = document.getElementById("total-amount");
+    const assuranceField = document.getElementById("assurance");
+
+    if (receiverType === "entreprise") {
+      assuranceSection.style.display = "block";
+      assuranceField.setAttribute("required", "true");
+    } else {
+      assuranceSection.style.display = "none";
+      assuranceField.removeAttribute("required"); // Supprime l'attribut required
+      insuranceAmount.style.display = "none";
+      totalAmount.style.display = "none";
+      document.getElementById("insurance-value").textContent = "0";
+      document.getElementById("total-value").textContent = "0";
+    }
+  }
+
+  // Fonction pour mettre à jour les montants
+  function updateTotals() {
+    const montant = parseFloat(document.getElementById("montant").value) || 0;
+    const assurance = document.getElementById("assurance").value;
+    const insuranceAmount = document.getElementById("insurance-amount");
+    const insuranceValue = document.getElementById("insurance-value");
+    const totalAmount = document.getElementById("total-amount");
+    const totalValue = document.getElementById("total-value");
+
+    let calculatedInsurance = 0;
+
+    if (assurance === "oui") {
+      calculatedInsurance = (montant * 0.02).toFixed(2);
+      insuranceAmount.style.display = "block";
+      insuranceValue.textContent = calculatedInsurance;
+    } else {
+      insuranceAmount.style.display = "none";
+      insuranceValue.textContent = "0";
+    }
+
+    // Calcul du montant total
+    const total = (montant + parseFloat(calculatedInsurance)).toFixed(2);
+    totalValue.textContent = total;
+
+    if (montant > 0) {
+      totalAmount.style.display = "block";
+    } else {
+      totalAmount.style.display = "none";
+    }
+  }
+</script>
+{% endblock content %}
+
+{% extends 'partials/base.html' %} {% block content %}
+    
+        <!-- Home -->
+
+
+    <div class="form-envois">
+        <div class="barre"></div> <br>
+            <form method="post" action="">
+                {% csrf_token %}
+                <h2>Confirmation d'envois</h2>
+                <p class="confirmt"> Monsieur / Madame {{user.name}} vous etes sur le point d'envoyer de L'argent a une personne ayant les informations suivantes : </p>
+                <div class="form1">
+                    <p class="para">Nom du bénéficiaire : {{ transaction.receiver_name }}</p><br><br>
+<p class="para">Email du bénéficiaire : {{ transaction.receiver_email }}</p><br><br>
+<p class="para">Montant envoyé : {{ transaction.amount_1 }} {{ transaction.currency }}</p><br><br>
+<p class="para">Montant reçu : {{ transaction.receiver_amount }} {{ transaction.to_devise }}</p><br><br>
+<p class="para">Frais : {{ transaction.frais }} {{ transaction.currency }}</p><br><br>
+                    
+                </div>
+                    <div class="form2">
+                        
+                        <input type="password" name="password" id="password">
+                    <div class="buttonEnvois">
+                        
+                        <input type="submit" value="Confirmer">
+                    </div>
+                
+            </form>
+    </div>
+
+{% endblock content %}

@@ -12,9 +12,11 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 from pathlib import Path
 import os 
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+load_dotenv()
 
 
 # Quick-start development settings - unsuitable for production
@@ -26,10 +28,28 @@ SECRET_KEY = 'django-insecure--f)#mvn6$#wbx-p(ls-qo8=gy%4=z#yo6&erbfbdcp=nq&^-8=
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    # "remethesauce.onrender.com",
+    #              "www.remethesauce.com",
+    #              "remethesauce.com",
+                 "127.0.0.1",
+                #  "Monetbil-Notification-Payment",
+                 "https://www.paypal.com/ipn",
+                 "https://dashboard.stripe.com/",
+                 "https://stripe.com/docs/webhooks",
+                 "926d-154-72-167-39.ngrok-free.app"
+                 ]
+
+# ALLOWED_HOSTS = ['*']
+
+
 #origines dinamiques
-CORS_ORIGIN_ALLOW_ALL = False
-CORS_ALLOW_CREDENTIALS = True
+# CORS_ORIGIN_ALLOW_ALL = False
+# CORS_ALLOW_CREDENTIALS = True
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://926d-154-72-167-39.ngrok-free.app"
+]
 
 AUTH_USER_MODEL = 'userAuth.CustomUser'
 
@@ -38,18 +58,20 @@ AUTH_USER_MODEL = 'userAuth.CustomUser'
 INSTALLED_APPS = [
     'core',
     'userAuth',
-    "corsheaders",
+    # "corsheaders",
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    'paypal.standard.ipn',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    "corsheaders.middleware.CorsMiddleware",
+    # "corsheaders.middleware.CorsMiddleware",
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -63,7 +85,7 @@ ROOT_URLCONF = 'possapay_api.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -124,7 +146,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
@@ -138,3 +160,25 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# LOGIN_URL = "userauth:sign-in"
+# LOGIN_REDIRECT_URL = "core:index"
+# LOGOUT_REDIRECT_URL = "userauth:sign-in"
+
+
+LOGIN_URL='/user/login/'
+LOGIN_REDIRECT_URL='/'
+
+# stripe test
+
+WEBHOOK=os.getenv('WEBHOOK')
+STRIPE_PUBLIC_KEY = os.getenv('STRIPE_PUBLIC_KEY')
+STRIPE_SECRET_KEY = os.getenv('STRIPE_SECRET_KEY')
+
+# PAYPAL
+
+PAYPAL_RECEIVER_EMAIL = os.getenv('PAYPAL_EMAIL_TEST') # for test mode
+# PAYPAL_RECEIVER_EMAIL = os.getenv('PAYPAL_EMAIL_TEST') # for live mode
+# PAYPAL_TEST = os.getenv('PAYPAL_TEST')
+
+PAYPAL_TEST =True

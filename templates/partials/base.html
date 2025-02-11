@@ -1,0 +1,78 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Api de Paiement</title>
+
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css"
+    />
+    <link rel="stylesheet" href="{% static 'assets/css/style.css' %}" />
+    <link
+      rel="stylesheet"
+      href="https://unicons.iconscout.com/release/v4.0.0/css/line.css"
+    />
+  </head>
+  <body>
+    <!-- Header -->
+    <header class="header">
+      <a href="{% url 'core:index' %}">
+        <img
+          src="{% static 'assets/image/logo.png' %}"
+          alt=""
+          class="possa-logo"
+        />
+      </a>
+
+      <i class="fa fa-bars toggle-btn"></i>
+
+      <nav class="navbar nav">
+        <a href="{% url 'core:index' %}" style="--i: 1">Accueil</a>
+        <a href="#" style="--i: 2">
+          <div class="dropdown">
+            <div class="select">
+              <span class="selected">Mon compte</span>
+              <div class="caret"></div>
+            </div>
+            <ul class="menu">
+              <li>
+                <a href="{% url 'core:make_transfer' %}">Envois</a>
+              </li>
+              <li><a href="{% url 'core:Recharge' %}">Recharger</a></li>
+              <li><a href="{% url 'core:solde' %}">Solde</a></li>
+            </ul>
+          </div>
+        </a>
+        <a href="#" style="--i: 3">A Propos</a>
+        <a href="#" style="--i: 4">Services</a>
+        <a href="#" style="--i: 5">Contact</a>
+      </nav>
+
+      <div class="connect">
+        {% if request.user.is_authenticated %}
+        <a href="{% url 'userAuth:logout' %}"
+          ><button class="button" id="">Se deconnecter</button>
+        </a>
+        {% else %}
+        <a href="{% url 'userAuth:login' %}"
+          ><button class="button" id="">Se connecter</button>
+        </a>
+        {% endif %}
+        <i class="fa-solid fa-moon mode"></i>
+        <!-- <div class="bg-nav"></div> -->
+      </div>
+      {% if messages %} {% for message in messages %}
+      <div class="header alert alert-{{ message.tags }}" role="alert">
+        <strong>Message: {{ message }}</strong>
+      </div>
+      {% endfor %} {% endif %}
+    </header>
+
+    {% block content %} {% endblock content %}
+    <script src="{% static 'assets/js/script.js' %}"></script>
+  </body>
+</html>

@@ -10,6 +10,10 @@ RETREAT_STATE = (
     ("COMPLETED", "COMPLETED"),
     ("REJECTED", "REJECTED"),
 )
+receiver_type = (
+    ("famille","famille"),
+    ("entreprise","entreprise"),
+)
 
 # Create your models here.
 class Retreat(models.Model):
@@ -59,7 +63,6 @@ class Transfer(models.Model):
     id = models.UUIDField(_('id'),default=uuid.uuid4, unique=True, primary_key=True, editable=False)
     user = models.ForeignKey(CustomUser, on_delete=models.DO_NOTHING, blank=True, null=True)
     amount = models.DecimalField(_('User amount'), max_digits=10, decimal_places=2, blank=True, null=True)
-
     receiver_email = models.EmailField(_('receiver adress'),max_length=250)
     transfer_date = models.DateTimeField(auto_now_add=True, verbose_name='transfer date',blank=True, null=True)
     message = models.TextField(null=True, blank=True)
@@ -95,6 +98,7 @@ WITHDRAWAL_METHODS = (
     ("PAYPAL", "Paypal"),
     ("ORANGE_MONEY", "Orange Money"),
     ("MTN_MOMO", "MTN MoMo"),
+    ("PossaPay", "PossaPay"),
 )  
 
 class Cagnotte(models.Model):
@@ -267,37 +271,68 @@ class ExchageRate(models.Model):
 
 class Transaction(models.Model):
     id = models.UUIDField(_('Transaction ID'), default=uuid.uuid4, unique=True, primary_key=True, editable=False)
-    sender_wallet = models.ForeignKey(Wallet, on_delete=models.CASCADE, related_name="sent_transactions", blank=True, null=True)
-    recipient_wallet = models.ForeignKey(Wallet, on_delete=models.CASCADE, related_name="received_transactions", blank=True, null=True)
-    service = models.ForeignKey(Service, on_delete=models.CASCADE, related_name="service_transactions", blank=True, null=True)
-    
+    sender = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="sent_transactions", blank=True, null=True)
+    receiver = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="received_transactions", blank=True, null=True)
     amount = models.DecimalField(_('Transaction Amount'), max_digits=10, decimal_places=2)
-    status = models.CharField(_('Transaction Status'), max_length=20, choices=[('pending', 'Pending'), ('completed', 'Completed'), ('failed', 'Failed')], default='pending')
-    transaction_type = models.CharField(_('Transaction Type'), max_length=20, choices=[('user_to_user', 'User to User'), ('service_payment', 'Service Payment')], default='user_to_user')
+    currency = models.CharField(choices=CURRENCY, max_length=5,blank=True, null=True)
+    receiver_amount = models.DecimalField(_('Receiver Amount'), max_digits=10, decimal_places=2, default=0)
+    receiver_currency = models.CharField(choices=CURRENCY, max_length=5,blank=True, null=True)
+    service = models.ForeignKey(Service, on_delete=models.CASCADE, related_name="service_transactions", blank=True, null=True)
+    receiver_type=models.CharField(choices=receiver_type, max_length=12,blank=True, null=True)
+    payment_mode = models.CharField(choices=WITHDRAWAL_METHODS, max_length=12,blank=True, null=True, default='PossaPay')
+    frais = models.DecimalField(_('fees Amount'), max_digits=10, decimal_places=2, default=0)
+    amount_assur = models.DecimalField(_('assur Amount'), max_digits=10, decimal_places=2, default=0)
+    from_country = models.CharField(max_length=100, blank=True, null=True)
+    to_country = models.CharField(max_length=100, blank=True, null=True)
+    status = models.CharField(_('Transaction Status'), max_length=20, choices=[('pending', 'Pending'),('lock', 'lock'), ('completed', 'Completed'), ('failed', 'Failed')], default='pending')
+    transaction_type = models.CharField(_('Transaction Type'), max_length=20, choices=[ ('service_payment', 'Service Payment'),('recharge', 'Recharge'), ('envoi', 'Envoi'), ('retrait', 'Retrait')], default='user_to_user')
     date_created = models.DateTimeField(auto_now_add=True, verbose_name='Date Created')
-    
+    session_id = models.CharField(max_length=255, blank=True, null=True)
+
     def __str__(self):
-        return f"Transaction {self.id} - {self.status} - {self.amount} USD"
+        return f"Transaction {self.id} - {self.sender} - {self.amount} {self.currency}"
 
-    def execute_transaction(self):
-        """Exécute la transaction en vérifiant le solde de l'expéditeur et en transférant le montant au destinataire ou au service."""
-        if self.sender_wallet and self.sender_wallet.amount >= self.amount:
-            # Débiter l'expéditeur
-            self.sender_wallet.amount -= self.amount
-            self.sender_wallet.save()
+    # def execute_transaction(self):
+    #     """Exécute la transaction en vérifiant le solde de l'expéditeur et en transférant le montant au destinataire ou au service."""
+    #     if self.sender_wallet and self.sender_wallet.amount >= self.amount:
+    #         # Débiter l'expéditeur
+    #         self.sender_wallet.amount -= self.amount
+    #         self.sender_wallet.save()
 
-            # Créditer le destinataire ou le portefeuille lié au service
-            if self.transaction_type == 'user_to_user' and self.recipient_wallet:
-                self.recipient_wallet.amount += self.amount
-                self.recipient_wallet.save()
-            elif self.transaction_type == 'service_payment' and self.service:
-                self.service.user.wallet.amount += self.amount
-                self.service.user.wallet.save()
+    #         # Créditer le destinataire ou le portefeuille lié au service
+    #         if self.transaction_type == 'user_to_user' and self.recipient_wallet:
+    #             self.recipient_wallet.amount += self.amount
+    #             self.recipient_wallet.save()
+    #         elif self.transaction_type == 'service_payment' and self.service:
+    #             self.service.user.wallet.amount += self.amount
+    #             self.service.user.wallet.save()
 
-            # Marquer la transaction comme terminée
-            self.status = 'completed'
-            self.save()
-        else:
-            self.status = 'failed'
-            self.save()
+    #         # Marquer la transaction comme terminée
+    #         self.status = 'completed'
+    #         self.save()
+    #     else:
+    #         self.status = 'failed'
+    #         self.save()
 
+
+# class Frais(models.Model):
+#     id = models.UUIDField(_('frais ID'), default=uuid.uuid4, unique=True, primary_key=True, editable=False)
+#     transaction = models.OneToOneField(Transaction, on_delete=models.CASCADE, related_name="transaction_fees")
+#     amount = models.DecimalField(_('fees Amount'), max_digits=10, decimal_places=2)
+#     currency = models.CharField(choices=CURRENCY, max_length=5,blank=True, null=True)
+#     service = models.ForeignKey(Service, on_delete=models.CASCADE, related_name="service_transactions", blank=True, null=True)
+    
+
+    # def __str__(self):
+    #     return f"Frais {self.id} - {self.transaction} - {self.amount} {self.currency}"
+
+# class Assur(models.Model):
+#     id = models.UUIDField(_('assur ID'), default=uuid.uuid4, unique=True, primary_key=True, editable=False)
+#     transaction = models.OneToOneField(Transaction, on_delete=models.CASCADE, related_name = "transaction_assur")
+#     amount = models.DecimalField(_('Transaction Amount'), max_digits=10, decimal_places=2)
+#     currency = models.CharField(choices=CURRENCY, max_length=5,blank=True, null=True)
+#     service = models.ForeignKey(Service, on_delete=models.CASCADE, related_name="service_transactions", blank=True, null=True)
+
+    # def __str__(self):
+    #     return f"Assur {self.id} - {self.transaction} - {self.amount} {self.currency}"
+    
