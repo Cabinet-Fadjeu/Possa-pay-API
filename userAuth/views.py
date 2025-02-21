@@ -50,6 +50,11 @@ def set_secret_code(request):
                 user.secret_code = make_password(code_secret)
                 user.secret_code_status = True
                 user.save()
+                messages.success(request, 'Code secret enregistré avec succès')
+                return redirect('core:index')
+            else:
+                messages.warning(request, 'Le code secret existe déjà')
+                return redirect('core:index')
         else:
             print(form.errors)
     else:

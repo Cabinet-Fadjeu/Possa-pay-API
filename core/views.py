@@ -1,7 +1,7 @@
 from django.http import JsonResponse
 from decimal import Decimal
 from django.http import Http404,HttpResponse
-# from django.views.decorators.csrf import csrf_exempt
+from django.dispatch import receiver
 from django.views.decorators.csrf import csrf_exempt
 
 from django.shortcuts import redirect,render,get_object_or_404
@@ -29,6 +29,10 @@ from django.db import transaction
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 
+from paypal.standard.models import ST_PP_COMPLETED
+from paypal.standard.ipn.signals import valid_ipn_received
+
+
 
 #home
 def index(request):
@@ -45,16 +49,15 @@ def makeTransfer(request):
     user = request.user
     sender_country = user.country
      # Vérifier le portefeuille de l'expéditeur
+    
     try:
-        try:
-            sender_wallet = Wallet.objects.get(user_id=user.id)
-        except Wallet.DoesNotExist:
-            messages.error(request, "Vous n'avez pas de portefeuille associé.")
-            return redirect('core:make_transfer')
+        sender_wallet = Wallet.objects.get(user_id=user.id)
+        devise = sender_wallet.devise
     except Wallet.DoesNotExist:
-        messages.warning(request, "Vous n'avez pas de portefeuille associé.")
-        return redirect('core:index')
-    devise = sender_wallet.devise
+        messages.error(request, "Vous n'avez pas de portefeuille associé.")
+        return redirect('core:make_transfer')
+    
+    
     
     if request.method == 'POST':
         print('recue')
@@ -63,7 +66,7 @@ def makeTransfer(request):
         receiver_type = request.POST.get("receiver_type")
         # secret_code = request.POST.get("password")
 
-        statut = 'lock' if receiver_type  == 'entreprise' else 'pending'
+        statut = 'lock' if receiver_type  == 'entreprise' else 'Pending'
 
         # Vérification des champs obligatoires
         if not all([email, amount_1, devise, receiver_type,]):
@@ -171,17 +174,6 @@ def confirmTransaction(request):
         to_country = transaction_data['receiver_country']
         amount_assur = transaction_data['amount_assur']
         to_devise = transaction_data['to_devise']
-        # receiver_name = request.POST.get('receiver_name')
-        # receiver_email = request.POST.get('receiver_email')
-        # receiver_phone = request.POST.get('receiver_phone')
-        # receiver_type = request.POST.get('receiver_type')
-        # amount = (request.POST.get('amount'))
-        # print('amount1',amount)
-        # # amount = Decimal(request.POST.get('amount'))
-        # receiver_amount =Decimal(request.POST.get('receiver_amount'))
-        # devise = request.POST.get('devise')
-        # frais = Decimal(request.POST.get('frais'))
-        # total_amount = Decimal(request.POST.get('total_amount'))
         secret_code = request.POST.get("password")   
 
         # print('transaction_data:',receiver_email,receiver_type,amount)
@@ -247,6 +239,8 @@ def confirmTransaction(request):
                 else:
                     receiver_wallet.amount += Decimal(receiver_amount)
                     receiver_wallet.save()
+
+                statut = 'completed' if statut == 'pending' else statut
 
                 # Enregistrer la transaction
                 Transaction.objects.create(
@@ -474,43 +468,10 @@ def render_checkout_page_stripe(request, amount,transaction):
         return redirect('core:Recharge')
 
 
-# def pending(request):
-#     return render(request,"core/pending")
 
 def success(request):
     return render(request, "core/success.html")
 
-#Recharge et retrait
-# def enregistrer_transaction(wallet, amount, transaction_type,statut):
-#     """
-#     Enregistre une transaction de type recharge ou retrait.
-
-#     Args:
-#         wallet (Wallet): Le portefeuille concerné.
-#         amount (Decimal): Le montant de la transaction.
-#         transaction_type (str): Le type de transaction ('recharge' ou 'retrait').
-#     """
-
-#     with transaction.atomic():
-#         if transaction_type == 'recharge':
-#             wallet.balance += amount
-#         elif transaction_type == 'retrait':
-#             if wallet.balance < amount:
-#                 raise ValueError("Solde insuffisant")
-#             wallet.balance -= amount
-#         else:
-#             raise ValueError("Type de transaction invalide")
-#         wallet.save()
-
-#         # Enregistrer la transaction
-#         Transaction.objects.create(
-#             sender=user,
-#             amount=amount,
-#             currency=devise,
-#             payment_mode='PossaPay', 
-#             status= statut,
-#             transaction_type='Recharge',
-#         )
 
 def cancel(request):
     return render(request, "core/cancel.html")
@@ -547,12 +508,9 @@ def render_checkout_page_paypal(request,amount,transaction):
 
 
     return render(request, "core/checkout.html", {
-        # "cart_data": cart_data_obj,
-        # 'totalcartitems': len(cart_data_obj),
-        # 'cart_total_amount': cart_total_amount,
+        
         'paypal_payment_button': paypal_payment_button,
-        # 'order': order,
-        # 'infos':infos
+        
     })
 
 
@@ -598,14 +556,27 @@ def stripe_webhook(request):
         print(f"num : {transac_id}")
 
         try:
-            recharge = Transaction.objects.get(id=transac_id, status='Pending')
+            recharge = Transaction.objects.get(id=transac_id)
             print(f"✅ Transaction trouve ! Transaction {recharge} .")
             recharge.status = 'Completed'
             recharge.save()
+
+            #ccrediter le wallet
+            amount =recharge.amount
+            user=recharge.sender
+            sender_wallet = Wallet.objects.get(user_id=user.id)
+            sender_wallet.amount += Decimal(amount)
+            sender_wallet.save()
+
+
             print(f"✅ Paiement validé ! Transaction {transac_id} mise à jour.")
         except Transaction.DoesNotExist:
             print(f"⚠️ Transaction {transac_id} introuvable.")
 
+        except Exception as e:
+            print(f"⚠️ Une erreur s'est produite : {str(e)}")
+            
+            
     return JsonResponse({'status': 'success'}, status=200)
 
 def check_payment_status(request):
@@ -622,3 +593,36 @@ def check_payment_status(request):
     except Transaction.DoesNotExist:
         print('vide')
         return JsonResponse({"status": "not_found"})
+
+
+@receiver(valid_ipn_received)
+def paypal_ipn_handler(sender, **kwargs):
+    ipn = sender
+
+    # Vérifier que le paiement a été réussi
+    if ipn.payment_status == "Completed":
+        # Récupérer les informations du paiement
+        print('reussi paypal 1')
+        print('ipn',ipn)
+
+        try:
+            transac_id = ipn.invoice.replace("INV-", "")
+            recharge = Transaction.objects.get(id=transac_id)
+            print(f"✅ Transaction trouve ! Transaction {recharge} .")
+            recharge.status = 'Completed'
+            recharge.save()
+
+            #ccrediter le wallet
+            amount =recharge.amount
+            user=recharge.sender
+            sender_wallet = Wallet.objects.get(user_id=user.id)
+            sender_wallet.amount += Decimal(amount)
+            sender_wallet.save()
+
+
+            print(f"✅ Paiement validé ! Transaction {transac_id} mise à jour.")
+        except Transaction.DoesNotExist:
+            print(f"⚠️ Transaction {transac_id} introuvable.")
+    
+    return HttpResponse("Payment not completed", status=400)
+    

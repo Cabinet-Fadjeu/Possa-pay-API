@@ -28,19 +28,19 @@ SECRET_KEY = 'django-insecure--f)#mvn6$#wbx-p(ls-qo8=gy%4=z#yo6&erbfbdcp=nq&^-8=
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = [
-    # "remethesauce.onrender.com",
-    #              "www.remethesauce.com",
-    #              "remethesauce.com",
-                 "127.0.0.1",
-                #  "Monetbil-Notification-Payment",
-                 "https://www.paypal.com/ipn",
-                 "https://dashboard.stripe.com/",
-                 "https://stripe.com/docs/webhooks",
-                 "926d-154-72-167-39.ngrok-free.app"
-                 ]
+# ALLOWED_HOSTS = [
+#     # "remethesauce.onrender.com",
+#     #              "www.remethesauce.com",
+#     #              "remethesauce.com",
+#                  "127.0.0.1",
+#                 #  "Monetbil-Notification-Payment",
+#                  "https://www.paypal.com/ipn",
+#                  "https://dashboard.stripe.com/",
+#                  "https://stripe.com/docs/webhooks",
+#                  "6df7-154-72-162-154.ngrok-free.app"
+#                  ]
 
-# ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['*']
 
 
 #origines dinamiques
@@ -48,7 +48,8 @@ ALLOWED_HOSTS = [
 # CORS_ALLOW_CREDENTIALS = True
 
 CSRF_TRUSTED_ORIGINS = [
-    "https://926d-154-72-167-39.ngrok-free.app"
+    "https://6df7-154-72-162-154.ngrok-free.app",
+    "https://www.paypal.com/ipn",
 ]
 
 AUTH_USER_MODEL = 'userAuth.CustomUser'

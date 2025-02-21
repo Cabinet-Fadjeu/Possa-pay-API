@@ -31,6 +31,9 @@ urlpatterns = [
     #Paypal
     path('paypal/', include('paypal.standard.ipn.urls')),
 
+    #paypal webhook
+    path('paypal-handler/', views.paypal_ipn_handler, name="paypal-handler"),
+
     #stripe webhook
     path('stripe_webhooks/', views.stripe_webhook, name='stripe_webhooks'),
 
