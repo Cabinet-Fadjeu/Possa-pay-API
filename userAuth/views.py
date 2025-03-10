@@ -186,20 +186,136 @@ def login_view(request):
 
 #logout
 def logout_view(request):
-
     logout(request)
     messages.success(request, "You logged out.")
     return redirect("core:index")
 
+#page api
+@login_required
+def service_dashboard(request):
+    user= request.user
+    # user.is_company = False
+    # user.save()
+    # print('statut',user.is_company)
+    
+    if not user:
+        messages.success(request, "un probleme es survenu.")
+        return redirect("core:index")
+    
+    
+    if not user.is_company == True:
+        messages.success(request, "Vous n'etes pas une entreprise.")
+        return redirect("userAuth:service_demand")
+    
+    service= Service.objects.filter(user=user)
+    print('service',service)
+    context = {
+        'service': service,
+    }
+
+    
+    return render(request, "userAuth/service_dashboard.html", context)
+
+
 #service demande
 # @api_view(['PUT'])
 # @permission_classes([IsAuthenticated])
-# def service_demand(request, user_id):
-#      user =  CustomUser.objects.get(id = user_id)
-#      user.is_company = True
-#      user.save()
-#      print('user',user)
-#      return Response( "Demand accepted successfully", status.HTTP_201_CREATED)
+@login_required
+def service_demand(request):
+    user=request.user
+    if not user:
+        messages.error(request, "Utilisateur introuvable.")
+        return redirect("core:index")
+    if user.is_company == True:
+        return redirect("userAuth:service_dashboard")
+    if request.method =='POST':
+        
+        user.is_company=True
+        user.save()
+        
+        messages.success(request, "Demande de service envoyée")
+        return redirect("userAuth:service_dashboard")
+
+    return render(request, "userAuth/service_demand.html")
+
+#ceer service
+@login_required
+def create_service(request):
+    user = request.user
+    if not user:
+        messages.error(request, "Utilisateur introuvable.")
+        return redirect("core:index")
+    if user.is_company == False:
+        return redirect("userAuth:service_demand")
+    if request.method == 'POST':
+        #creer le service
+        try:
+            # Récupérer les données envoyées par la requête
+            name = request.data.get("name")  # Nom du service
+            description = request.data.get("description", "")  # Description facultative
+            allowed_hosts = request.data.get("allowed_hosts", "")  # Hôtes autorisés facultatifs
+
+            # Utiliser une transaction pour s'assurer que tout est créé ensemble
+            with transaction.atomic():
+            # Créer un compte
+                compte = Compte.objects.create(
+                amount=0.00  # Valeur par défaut
+            )
+
+            # Créer un service et lier le compte
+                service = Service.objects.create(
+                user=user,
+                name=name,
+                description=description,
+                compte=compte,
+                allowed_hosts=allowed_hosts
+            )
+
+        #service = Service.objects.create(user=user, name=name, description=description, compte=compte, allowed_hosts=allowed_hosts)
+            messages.success(request, "Service créé avec succès.")
+            return redirect("userAuth:service_dashboard")
+        
+        except Exception as e:
+            messages.success(request, "probleme est survenu.",e)
+            return redirect("userAuth:service_dashboard")
+    
+    return render(request, "userAuth/create_service.html")
+
+# delete service
+@login_required
+def delete_service(request, service_id):
+    user = request.user
+    if not user:
+        messages.error(request, "Utilisateur introuvable.")
+        return redirect("core:index")
+    if user.is_company == False:
+        return redirect("userAuth:service_demand")
+    service = Service.objects.get(user=user, id=service_id)
+    service.delete()
+    messages.success(request, "Service supprimé avec succès.")
+    return redirect("userAuth:service_demand")
+
+#pdater service
+@login_required
+def update_service(request, service_id):
+    user = request.user
+    if not user:
+        messages.error(request, "Utilisateur introuvable.")
+        return redirect("core:index")
+    if user.is_company == False:
+        return redirect("userAuth:service_demand")
+    service = Service.objects.get(user=user, id=service_id)
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        description = request.POST.get('description')
+        allowed_hosts = request.POST.get('allowed_hosts')
+        service.name = name
+        service.description = description
+        service.allowed_hosts = allowed_hosts
+        service.save()
+        messages.success(request, "Service mis à jour avec succès.")
+        return redirect("userAuth:service_dashboard")
+    return render(request, "userAuth/update_service.html")
 
 # @api_view(['POST'])
 # def create_service(request, user_id):
@@ -243,45 +359,3 @@ def logout_view(request):
 #         return Response({"error": "Utilisateur introuvable."}, status=404)
 #     except Exception as e:
 #         return Response({"error": str(e)}, status=500)
-
-# @api_view(['POST'])
-# def reception(request):
-    if request.method == 'POST':
-        try:
-        # Récupérer les données envoyées par la requête
-            public_key = request.data.get("public_key")
-            secret_key = request.data.get("secret_key")
-            amount = request.data.get("amount") 
-            print("public_key",public_key,"secret_key",secret_key,"amount",amount) 
-
-        # Utiliser une transaction pour s'assurer que tout est créé ensemble
-        # with transaction.atomic():
-        #     # Créer un compte
-        #     compte = Compte.objects.create(
-        #         # service_id=user,
-        #         amount=0.00  # Valeur par défaut
-        #     )
-
-        #     # Créer un service et lier le compte
-        #     service = Service.objects.create(
-        #         user=user,
-        #         name=name,
-        #         description=description,
-        #         compte=compte,
-        #         allowed_hosts=allowed_hosts
-        #     )
-
-        # Retourner une réponse JSON avec les détails
-            return Response({
-            "message": "transaction effectue avec succès.",
-            # "service_id": service.id,
-            # "public_key": service.public_key,
-            # "secret_key": service.secret_key,
-            # "compte_id": compte.id,
-            # "compte_amount": compte.amount,
-            }, status=201)
-
-        except CustomUser.DoesNotExist:
-            return Response({"error": "Utilisateur introuvable."}, status=404)
-        except Exception as e:
-            return Response({"error": str(e)}, status=500)

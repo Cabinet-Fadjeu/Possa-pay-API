@@ -1,0 +1,59 @@
+{% extends 'partials/base.html' %} {% load static %} {% block content %}
+<!-- Section accueil commence  -->
+
+<section class="#">
+  <h1>Tableau de board</h1>
+  <p>
+    Bienvenue sur votre tableau de bord, vous pouvez voir vos transactions
+    ici.Vous pouvez également ajouter des transactions en cliquant sur le bouton
+    ci-dessous.
+  </p>
+
+  <button type="button">creer un service</button>
+
+  <h2>Service</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Nom</th>
+        <th>description</th>
+        <th>public_key</th>
+        <th>secret_key</th>
+        <th>allowed_hosts</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for service in service %}
+      <tr>
+        <td>{{ service.user }}</td>
+        <td>{{ service.name }}</td>
+        <td>{{ service.description }}</td>
+        <td>{{ service.allowed_hosts }}</td>
+        <td>
+          public_key{{ service.public_key }}secret_key{{ service.secret_key }}
+        </td>
+        <td data-title="Remove">
+          <button
+            style="border: none; background: none"
+            class="delete-product"
+            data-product="{{ product_id }}"
+          >
+            <i class="fas fa-trash"></i>
+          </button>
+        </td>
+        <td data-title="Remove">
+          <button
+            style="border: none; background: none"
+            class="update-product"
+            data-product="{{ product_id }}"
+          >
+            <i class="fas fa-sync"></i>
+          </button>
+        </td>
+        {% endfor %}
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+{% endblock content %}

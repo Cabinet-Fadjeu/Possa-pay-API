@@ -9,7 +9,7 @@
     {% csrf_token %}
     <h2>Formulaire d'envois d'argent</h2>
     <div class="form1">
-      <label for="nomComplet"
+      <!-- <label for="nomComplet"
         >Nom Complet du bénéficiaire <span class="star">*</span></label
       ><br />
       <input
@@ -18,7 +18,7 @@
         placeholder="Entrer votre nom complet"
         class="inputEnvois"
       />
-      <br /><br />
+      <br /><br /> -->
 
       <label for="recipient_email"
         >Email du bénéficiaire : <span class="star">*</span></label
@@ -36,7 +36,8 @@
       <input
         type="tel"
         id="tel"
-        placeholder="Entrer votre numéro Téléphone"
+        name="phone"
+        placeholder="Phone"
         class="inputEnvois"
       />
       <br /><br />
@@ -56,7 +57,7 @@
       />
       <br /><br />
 
-      <label for="currency">Dévise en XAF (francs cfa)</label>
+      <label for="currency">Dévise </label>
       <select id="currency" disabled="disabled" name="currency" class="Envois">
         <option value="cfa">{{ devise }}</option>
       </select>
@@ -72,16 +73,12 @@
       </select>
     </div>
 
-    <div class="total">
+    <!-- <div class="total">
       Montant total à payer : <span id="totalAmount">0</span> Fcfa
-    </div>
+    </div> -->
 
     <div class="buttonEnvois">
-      <button type="submit" class="button" name="submit">
-        <!-- <a href="ConfirmEnvoie.html" style="color: white"> -->
-        Envoyer
-        <!-- </a> -->
-      </button>
+      <button type="submit" class="button" name="submit">Envoyer</button>
     </div>
   </form>
 </div>

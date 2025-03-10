@@ -1,0 +1,55 @@
+{% extends 'partials/base.html' %} {% load static %} {% block content %}
+
+<div class="container">
+  <aside class="sidebar">
+    <h2>Services</h2>
+    <ul>
+      <li class="active">Payment Processing</li>
+      <li>Authentication API</li>
+      <li>Storage Service</li>
+    </ul>
+  </aside>
+  <main class="dashboard">
+    <div class="dashboard-header">
+      <h1>Services Dashboard</h1>
+      <button class="btn">+ Create Service</button>
+    </div>
+    <section class="card">
+      <h2>Payment Processing</h2>
+      <p class="balance">$15,234.56</p>
+      <div class="api-key">
+        <input type="password" id="apiKey" value="MySecretAPIKey" disabled />
+        <button onclick="toggleApiKey()">👁️</button>
+        <button onclick="copyApiKey()">📋</button>
+      </div>
+      <h3>Recent Transactions</h3>
+      <ul class="transactions">
+        <li>Customer payment <span class="credit">+$1,250.00</span></li>
+        <li>Processing fee <span class="debit">$45.00</span></li>
+        <li>Subscription payment <span class="credit">+$890.00</span></li>
+      </ul>
+    </section>
+  </main>
+</div>
+
+<script>
+  function toggleApiKey() {
+    var input = document.getElementById("apiKey");
+    if (input.type === "password") {
+      input.type = "text";
+    } else {
+      input.type = "password";
+    }
+  }
+  function copyApiKey() {
+    var input = document.getElementById("apiKey");
+    input.disabled = false;
+    input.select();
+    document.execCommand("copy");
+    input.disabled = true;
+    alert("API Key copied to clipboard!");
+  }
+</script>
+
+<script src="{% static 'assets/js/script.js' %}"></script>
+{% endblock content %}

@@ -1,5 +1,6 @@
 from django.http import JsonResponse
 from decimal import Decimal
+import math
 from django.http import Http404,HttpResponse
 from django.dispatch import receiver
 from django.views.decorators.csrf import csrf_exempt
@@ -44,11 +45,11 @@ def profile_view(request):
     return render(request, 'core/profile.html')
 
 
-@login_required
+@login_required 
 def makeTransfer(request):
     user = request.user
     sender_country = user.country
-     # Vérifier le portefeuille de l'expéditeur
+     # Vérifier le portefeuille de l'expéditeur et recuperer la devise
     
     try:
         sender_wallet = Wallet.objects.get(user_id=user.id)
@@ -57,14 +58,12 @@ def makeTransfer(request):
         messages.error(request, "Vous n'avez pas de portefeuille associé.")
         return redirect('core:make_transfer')
     
-    
-    
+    #1er requete envoie d'argent
     if request.method == 'POST':
-        print('recue')
         email = request.POST.get("recipient_email")
+        phone = request.POST.get("phone")
         amount_1 = request.POST.get("montant")
         receiver_type = request.POST.get("receiver_type")
-        # secret_code = request.POST.get("password")
 
         statut = 'lock' if receiver_type  == 'entreprise' else 'Pending'
 
@@ -96,7 +95,14 @@ def makeTransfer(request):
             
          # Calcul des frais d'assurance et frais d'envois
         amount_assur = (2 * amount_1) / 100 if receiver_type == "entreprise" else 0
-        frais = 0 if sender_country  == receiver_country else (10 * amount_1) / 100
+        frais = 0 if sender_country  == receiver_country else (2 * amount_1) / 100
+        if devise == 'XAF':
+            frais = math.ceil(frais)
+            amount_assur = math.ceil(amount_assur)
+        elif devise == 'EUR':
+            frais = round(frais, 2)
+            amount_assur = round(amount_assur,2)
+            
         total_amount = amount_1 + amount_assur + frais
         
 
@@ -272,7 +278,7 @@ def confirmTransaction(request):
 
 
     # Si GET, afficher le formulaire de transfert
-    devise  = transaction_data['currency']
+    
     
     return render(request, 'core/confirm.html',{"transaction": transaction_data})
 
@@ -515,6 +521,7 @@ def render_checkout_page_paypal(request,amount,transaction):
 
 
 
+
 #payment complet
 def payment_completed_view(request):
     return render(request, "core/payment-completed.html")
@@ -581,11 +588,11 @@ def stripe_webhook(request):
 
 def check_payment_status(request):
     session_id = request.GET.get("session_id")
-    print('session_id',session_id)
+    
     if not session_id:
         return JsonResponse({"error": "Session ID is required"}, status=400)
 
-    print('ok')
+    
     try:
         transaction = Transaction.objects.get(session_id=session_id)
         print('transaction',transaction.status)
@@ -625,4 +632,6 @@ def paypal_ipn_handler(sender, **kwargs):
             print(f"⚠️ Transaction {transac_id} introuvable.")
     
     return HttpResponse("Payment not completed", status=400)
-    
+
+
+

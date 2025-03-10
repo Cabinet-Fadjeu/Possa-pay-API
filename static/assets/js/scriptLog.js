@@ -61,8 +61,8 @@ document.getElementById("selection").addEventListener("change", function () {
 //   totalAmountDisplay.textContent = totalAmount.toFixed(2);
 // }
 
-baseAmountInput.addEventListener("input", calculateTotal);
-insuranceOption.addEventListener("change", calculateTotal);
+// baseAmountInput.addEventListener("input", calculateTotal);
+// insuranceOption.addEventListener("change", calculateTotal);
 
 // dropdown script
 const dropdowns = document.querySelectorAll(".dropdown");

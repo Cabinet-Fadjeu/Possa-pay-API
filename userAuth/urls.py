@@ -12,6 +12,35 @@ from . import views
 app_name = "userAuth"
 
 urlpatterns = [
+    # User registration Routes
+    path('register/', views.register_view, name='register'),
+    # User login Routes
+    path('login/', views.login_view,name='login'),
+    # logout
+    path('logout/', views.logout_view,name='logout'),
+
+
+
+                  #SERVICES
+
+    #sevices demande
+    path('service/demande/', views.service_demand, name='service_demand'),
+    
+    #sevices Dashboard
+    path('service/dashboard/', views.service_dashboard, name='service_dashboard'),
+
+    #create service
+    path('service/create/', views.create_service, name='create_service'),
+
+    #update service
+    path('service/update/<uuid:service_id>/', views.update_service, name='update_service'),
+    
+    #delete service
+    path('service/delete/<uuid:service_id>/', views.delete_service, name='delete_service'),
+
+
+
+
     # Update user profile image
     # path('user-images-profile/<uuid:user_id>/', views.userProfileImageUpdate, name='user-image-profile'),
 
@@ -19,20 +48,15 @@ urlpatterns = [
     # path('check-secret/', views.check_secret_code),
     path('set-secret/', views.set_secret_code, name='set-secret'),
     # path('set-secret/<str:request_type>/<uuid:user_id>/', views.set_user_secret, name='set_user_secret'),
-    # #sevices demande
-    # path('service/demande/<uuid:user_id>/', views.service_demand, name='service_demand'), 
+    
     # #creat service
-    # path('service/create/<uuid:user_id>/', views.create_service, name='create_service'),
+    #path('service/create/<uuid:user_id>/', views.create_service, name='create_service'),
     #reception des fond
     # path('service/receive/', views.reception, name='reception'),
-    # User registration Routes
-    path('register/', views.register_view, name='register'),
-    # User login Routes
-    path('login/', views.login_view,name='login'),
+
     # User token refresh Routes
     # path('token/refresh-token/', TokenRefreshView.as_view(),name='refresh_token'),
-    # User logout Routes
-    path('logout/', views.logout_view,name='logout'),
+    
     # path('login/', views.login),
     # User view details
     # path('user-detail/<uuid:id>/', views.userDetail),

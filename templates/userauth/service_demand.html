@@ -1,0 +1,18 @@
+{% extends 'partials/base.html' %} {% block content %}
+<div class="form-envois">
+  <div class="barre"></div>
+  <br />
+  <form method="POST" action="">
+    {% csrf_token %}
+
+    <h2>Confirmation d'envoi</h2>
+    <p class="confirmt">Vous vous appretez a aquerir l'api:</p>
+
+    <div class="form2">
+      <div class="buttonEnvois">
+        <input type="submit" value="Confirmer" />
+      </div>
+    </div>
+  </form>
+</div>
+{% endblock content %}
