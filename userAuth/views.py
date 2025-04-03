@@ -1,5 +1,5 @@
-# from django.http import JsonResponse
-# from django.shortcuts import render
+from django.http import JsonResponse
+import json
 
 import re
 # from rest_framework.decorators import api_view,permission_classes
@@ -18,6 +18,7 @@ from django.http import Http404
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
 from .models import CustomUser,Wallet,Service, Compte
+from core.models import Transaction
 # from .serializer import (
 #     RegisterSerializer, 
 #     UserSerializer, 
@@ -31,6 +32,7 @@ from django.contrib.auth import login, authenticate, logout
 from django.contrib import messages
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
+from django.core.serializers import serialize
 
 
 
@@ -191,35 +193,96 @@ def logout_view(request):
     return redirect("core:index")
 
 #page api
+
 @login_required
 def service_dashboard(request):
-    user= request.user
-    # user.is_company = False
-    # user.save()
-    # print('statut',user.is_company)
-    
-    if not user:
-        messages.success(request, "un probleme es survenu.")
-        return redirect("core:index")
-    
-    
-    if not user.is_company == True:
-        messages.success(request, "Vous n'etes pas une entreprise.")
-        return redirect("userAuth:service_demand")
-    
-    service= Service.objects.filter(user=user)
-    print('service',service)
-    context = {
-        'service': service,
-    }
+    """ Vue principale affichant les services de l'utilisateur """
+    user = request.user
+    services = Service.objects.filter(user=user)
+    if not services.exists():
+        return JsonResponse({"error": "Aucun service trouvé"}, status=404)
+    print('services1', [service.id for service in services])
 
-    
+    # Convertir les services en JSON
+    services_data = [
+        {
+            "id": str(service.id),
+            "name": service.name,
+            "balance": float(service.compte.amount) if service.compte else 0,
+            "apiKey": service.public_key,
+            "transactions": [
+                {
+                    # "desc": transaction.description,
+                    "amount": f"${transaction.amount}",
+                    "date": transaction.date_created.strftime("%Y-%m-%d %H:%M:%S")
+                }
+                for transaction in Transaction.objects.filter(service=service).order_by("-date_created")[:5]  # Dernières 5 transactions
+            ],
+        }
+        for service in services
+    ]
+
+    context = {
+       
+        "services": json.dumps(services_data),
+    }
     return render(request, "userAuth/service_dashboard.html", context)
 
+# @login_required
+# def service_dashboard(request):
+#     """ Vue principale affichant les services de l'utilisateur """
+#     user = request.user
+#     services = Service.objects.filter(user=user)
+#     # Convertir les services en JSON
+#     services_data = [
+#         {
+#             "id": service.id,
+#             "name": service.name,
+#             "balance": service.compte,
+#             "apiKey": service.public_key,
+#             "transactions": [
+#                 {"desc": "Customer payment", "amount": "+$1,250.00"},
+#                 {"desc": "Processing fee", "amount": "-$45.00"},
+#                 {"desc": "Subscription payment", "amount": "+$890.00"},
+#             ],
+#         }
+#         for service in services
+#     ]
 
-#service demande
-# @api_view(['PUT'])
-# @permission_classes([IsAuthenticated])
+#     context = {
+#         "services": json.dumps(services_data),
+#     }
+#     return render(request, "userAuth/service_dashboard.html", context)
+
+
+
+# @login_required
+# def service_dashboard(request):
+#     user= request.user
+#     # user.is_company = False
+#     # user.save()
+#     # print('statut',user.is_company)
+    
+#     if not user:
+#         messages.success(request, "un probleme es survenu.")
+#         return redirect("core:index")
+    
+    
+#     if not user.is_company == True:
+#         messages.success(request, "Vous n'etes pas une entreprise.")
+#         return redirect("userAuth:service_demand")
+    
+#     service= Service.objects.filter(user=user)
+#     print('service',service)
+#     context = {
+#         'service': service,
+#     }
+
+    
+#     return render(request, "userAuth/service_dashboard.html", context)
+
+
+#demande de service
 @login_required
 def service_demand(request):
     user=request.user

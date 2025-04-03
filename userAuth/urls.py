@@ -28,6 +28,9 @@ urlpatterns = [
     
     #sevices Dashboard
     path('service/dashboard/', views.service_dashboard, name='service_dashboard'),
+    # path('api/service/<int:service_id>/api-key/', views.get_api_key, name='get_api_key'),
+
+
 
     #create service
     path('service/create/', views.create_service, name='create_service'),
