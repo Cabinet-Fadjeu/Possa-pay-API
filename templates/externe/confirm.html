@@ -1,0 +1,85 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Api de Paiement</title>
+
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css"
+    />
+    <link rel="stylesheet" href="{% static 'assets/css/style.css' %}" />
+    <link
+      rel="stylesheet"
+      href="https://unicons.iconscout.com/release/v4.0.0/css/line.css"
+    />
+  </head>
+  <body>
+<div class="form-envois">
+  <div class="barre"></div>
+  <br />
+  <form method="post" action="">
+    {% csrf_token %}
+
+    <h2>Paiement</h2>
+    <p class="confirmt">
+      Monsieur / Madame {{ user.get_full_name }},{{request.user.username|title}}
+      vous êtes sur le point de faire un paiement de 5000f :
+    </p>
+
+    <!-- <div class="form1">
+      <p class="para">Nom du bénéficiaire : {{ transaction.receiver_name }}</p>
+      <br /><br />
+      <p class="para">Email du bénéficiaire : {{transaction.receiver_email}}</p>
+      <br /><br />
+      <p class="para">
+        Montant envoyé : {{ transaction.amount_1 }}{{transaction.currency }}
+      </p>
+      <br /><br />
+      <p class="para">
+        Montant recue : {{ transaction.receiver_amount}}
+        {{transaction.to_devise}}
+      </p>
+
+      <br /><br />
+      <p class="para">
+        Frais :{{ transaction.frais }} {{ transaction.currency }}
+      </p>
+      <br /><br />
+      <p class="para">
+        Assurance :{{ transaction.amount_assur }} {{ transaction.currency }}
+      </p>
+      <br /><br />
+      <p class="para">
+        Total a payer : {{ transaction.total_amount }}{{transaction.currency }}
+      </p>
+      <br /><br />
+    </div> -->
+
+    <!-- <div class="form2">
+      <div class="form-group">
+        <label for="password">Mot de passe :</label>
+        <input
+          type="password"
+          name="password"
+          id="password"
+          class="input-field"
+          required
+        />
+      </div> -->
+      <input type="hidden" name="action" value="confirm">
+
+      <div class="buttonEnvois">
+        <input type="submit" value="Confirmer" />
+      </div>
+    </div>
+  </form>
+</div>
+
+<script src="{% static 'assets/js/script.js' %}"></script>
+</body>
+</html>

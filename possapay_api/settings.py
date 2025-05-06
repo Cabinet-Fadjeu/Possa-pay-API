@@ -28,29 +28,34 @@ SECRET_KEY = 'django-insecure--f)#mvn6$#wbx-p(ls-qo8=gy%4=z#yo6&erbfbdcp=nq&^-8=
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-# ALLOWED_HOSTS = [
-#     # "remethesauce.onrender.com",
-#     #              "www.remethesauce.com",
-#     #              "remethesauce.com",
-#                  "127.0.0.1",
-#                 #  "Monetbil-Notification-Payment",
-#                  "https://www.paypal.com/ipn",
-#                  "https://dashboard.stripe.com/",
-#                  "https://stripe.com/docs/webhooks",
-#                  "6df7-154-72-162-154.ngrok-free.app"
-#                  ]
+ALLOWED_HOSTS = [
+                 "127.0.0.1",
+                #  "http://127.0.0.1:5500",
+                #  "Monetbil-Notification-Payment",
+                 "https://www.paypal.com/ipn",
+                 "https://dashboard.stripe.com/",
+                 "https://stripe.com/docs/webhooks",
+                 "6df7-154-72-162-154.ngrok-free.app"
+                 ]
 
-ALLOWED_HOSTS = ['*']
+# ALLOWED_HOSTS = ['*']
 
-
-#origines dinamiques
-# CORS_ORIGIN_ALLOW_ALL = False
-# CORS_ALLOW_CREDENTIALS = True
-
+#a enlever en production
 CSRF_TRUSTED_ORIGINS = [
     "https://6df7-154-72-162-154.ngrok-free.app",
     "https://www.paypal.com/ipn",
+    "http://127.0.0.1:5500",
 ]
+
+CORS_ALLOW_ALL_ORIGINS = False
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_HEADERS = [
+    "X-API-KEY",
+    "Content-Type",
+]
+
+CORS_ORIGIN_WHITELIST = [] 
+
 
 AUTH_USER_MODEL = 'userAuth.CustomUser'
 
@@ -59,7 +64,8 @@ AUTH_USER_MODEL = 'userAuth.CustomUser'
 INSTALLED_APPS = [
     'core',
     'userAuth',
-    # "corsheaders",
+    'externe',
+    "corsheaders",
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -71,8 +77,9 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'externe.middleware.DynamicCorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
-    # "corsheaders.middleware.CorsMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',

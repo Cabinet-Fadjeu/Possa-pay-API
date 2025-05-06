@@ -392,41 +392,6 @@ def recharge_wallet(request):
 
     return render(request, 'core/recharge.html',context)
 
-# def render_checkout_page_stripe(request, amount):
-#     """
-#     Rend la page de paiement avec les détails de la commande.
-#     """
-#     try:
-#         stripe.api_key = settings.STRIPE_SECRET_KEY
-
-#         total_amount_in_cents = int(amount * 100)
-#         # Créer une session de paiement Stripe avec le montant dynamique
-#         checkout_session = stripe.checkout.Session.create(
-#             payment_method_types=["card"],  # Ajouter d'autres modes si nécessaire
-#             line_items=[
-#                 {
-#                     "price_data": {
-#                         "currency": "eur",
-#                         "product_data": {
-#                             "name": "Recharge de portefeuille",  # Nom affiché dans le checkout Stripe
-#                         },
-#                         "unit_amount": total_amount_in_cents,  # Montant dynamique
-#                     },
-#                     "quantity": 1,
-#                     "metadata":{
-#                     # 'order_id': str(order.id),
-#                     # 'order_sku': order.sku
-#         },
-#                 }
-#             ],
-#             mode="payment",
-#             success_url=request.build_absolute_uri(reverse("core:success")),
-#             cancel_url=request.build_absolute_uri(reverse("core:cancel")),
-#         )
-#         return redirect(checkout_session.url, code=303)
-#     except Exception as e:
-#         messages.error(request, f"Une erreur est survenue : {str(e)}")
-#         return redirect('core:Recharge')
 
 def render_checkout_page_stripe(request, amount,transaction):
 

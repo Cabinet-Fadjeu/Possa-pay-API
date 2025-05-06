@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Success</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        text-align: center;
+        padding: 50px;
+        background-color: #f4f4f9;
+      }
+      .success-message {
+        color: #28a745;
+        font-size: 24px;
+        font-weight: bold;
+      }
+      .details {
+        margin-top: 20px;
+        font-size: 18px;
+        color: #555;
+      }
+      .button {
+        margin-top: 30px;
+        padding: 10px 20px;
+        font-size: 16px;
+        color: #fff;
+        background-color: #007bff;
+        border: none;
+        border-radius: 5px;
+        text-decoration: none;
+      }
+      .button:hover {
+        background-color: #0056b3;
+      }
+    </style>
+  </head>
+  <body>
+    <h1 class="success-message">Transaction Successful!</h1>
+    <p class="details">
+      Thank you for your payment. Your transaction has been completed
+      successfully.
+    </p>
+    <a href="{{ external_link }}" class="button">Go to Homepage</a>
+  </body>
+</html>

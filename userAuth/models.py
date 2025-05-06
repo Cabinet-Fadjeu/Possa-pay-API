@@ -84,7 +84,7 @@ class Compte(models.Model):
     id  = models.UUIDField(_('id'),default=uuid.uuid4, unique=True,primary_key=True,  editable=False)
     # service_id = models.OneToOneField(CustomUser,on_delete=models.CASCADE,blank=True, unique=True, null=True)
     amount = models.DecimalField(_('User amount'), max_digits=10, decimal_places=2, default=0.00, blank=True, null=True)
-    
+    devise = models.CharField(choices=CURRENCY, max_length=5,blank=True, null=True, default="XAF")
     date_created = models.DateTimeField(auto_now_add=True, verbose_name='Date Created',blank=True, null=True)
     
     def __str__(self):
@@ -104,7 +104,7 @@ class Service(models.Model):
     public_key = models.CharField(_('Public Key'), max_length=64, unique=True, default=secrets.token_hex(32))
     secret_key = models.CharField(_('Secret Key'), max_length=64, unique=True, default=secrets.token_hex(32))
     compte = models.OneToOneField(Compte, on_delete=models.CASCADE, null=True, blank=True)
-    allowed_hosts = models.TextField(help_text="Liste de domaines autorisés, séparés par des virgules", blank=True, null=True)
+    # allowed_hosts = models.TextField(help_text="Liste de domaines autorisés, séparés par des virgules", blank=True, null=True)
     date_created = models.DateTimeField(auto_now_add=True, verbose_name='Date Created', blank=True, null=True)
 
     def __str__(self):
@@ -123,6 +123,10 @@ class Service(models.Model):
             self.secret_key = uuid.uuid4().hex  # Générer une clé secrète unique
             print('public',self.public_key)
         super(Service, self).save(*args, **kwargs)
+
+class AllowedHost(models.Model):
+    service = models.ForeignKey(Service, on_delete=models.CASCADE, related_name='allowed_hosts')
+    domain = models.CharField(max_length=255)
 
 # @receiver(reset_password_token_created)
 # def password_reset_token_created(sender, instance, reset_password_token, *args, **kwargs):

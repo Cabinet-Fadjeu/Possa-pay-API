@@ -15,7 +15,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 
-from .models import CustomUser, Wallet,Service, Compte
+from .models import CustomUser, Wallet,Service, Compte, AllowedHost
 
 # Register your models here.
 @admin.register(CustomUser)
@@ -31,8 +31,12 @@ class WalletAdmin(admin.ModelAdmin):
 
 @admin.register(Service)
 class ServiceAdmin(admin.ModelAdmin):
-    list_display = ('id','user', 'name', 'compte', 'allowed_hosts')
+    list_display = ('id','user', 'name', 'compte')
 
 @admin.register(Compte)
 class CompteAdmin(admin.ModelAdmin):
     list_display = ('id', 'amount',)
+
+@admin.register(AllowedHost)
+class CompteAdmin(admin.ModelAdmin):
+    list_display = ('id', 'service','domain',)
