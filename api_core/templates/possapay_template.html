@@ -1,0 +1,31 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'assets/css/api_core.css' %}">
+    <title>Possa pay</title>
+</head>
+<body>
+    <main style="background-image: url('{% static 'assets/image/api-background-1.jpg' %}')">
+        <div class="center-handler">
+            <h1>Please complete your Possa Pay payment process. ({{payData.currency}} {{payData.amount}} )</h1>
+            
+            <div class="line-seperator"></div>
+
+           
+                <div class="modal-payment-container">
+                    <div> Here is Possa pay payment </div>
+                </div>
+         
+           
+        </div>
+    </main>
+
+    <script>
+       
+    </script>
+</body>
+</html>

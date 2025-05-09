@@ -1,0 +1,83 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'assets/css/api_core.css' %}">
+    <script src="https://www.paypal.com/sdk/js?client-id=AQFbeRfwp25p4DrLTfMHp-Dp6C4Y_wICIFbQQstOa7uocV03IjtxIwMSHj5jZq1aT0kM-hQWrImDCt_Y&components=buttons"></script>
+    <script src="https://js.stripe.com/v3/"></script>
+    <title>Possa pay</title>
+</head>
+<body>
+    <main style="background-image: url('{% static 'assets/image/api-background-1.jpg' %}')">
+        <div class="center-handler">
+            <h1>Please complete your 
+                {% if payData.payType == 'Paypal' %} 
+                    <span>{{payData.payType}}</span>  
+                {% elif payData.payType == 'Card' %}
+                    <span> {{payData.payType}}</span>
+                {% elif payData.payType == 'Possapay' %}
+                    <span> {{payData.payType}} </span>
+                {% elif payData.payType == 'Mobile' %}
+                    <span> {{payData.payType}}</span>
+                {% endif %}
+                payment process. ({{payData.currency}} {{payData.amount}} )
+            </h1>
+            
+            <div class="line-seperator"></div>
+
+            {% if payData.payType == 'Paypal' %}
+                <div class="modal-payment-container">
+                    <div id="paypal-button-container"></div>
+                </div>
+            {% elif payData.payType == 'Possapay' %}
+                <div class="modal-payment-container">
+                    <div> Here is Possa pay payment </div>
+                </div>
+            {% elif payData.payType == 'Mobile' %}
+                <div class="modal-payment-container">
+                    <div> Here is Mobile Payment </div>
+                </div>
+
+            {% endif %}
+           
+        </div>
+    </main>
+
+    <script>
+        // PAYPAL SECTION
+        // PayPal button setup using the provided data from Django view
+        paypal.Buttons({
+            createOrder: function(data, actions) {
+                return actions.order.create({
+                    purchase_units: [{
+                        amount: {
+                            value: '{{ paypal_data.amount }}',  
+                            currency_code: '{{ paypal_data.currency }}' 
+                        },
+                        description: '{{ paypal_data.item_name }}',  
+                        invoice_id: '{{ paypal_data.invoice }}',  // Invoice ID
+                    }],
+                    application_context: {
+                        return_url: '{{ paypal_data.return_url }}', 
+                        cancel_url: '{{ paypal_data.cancel_url }}', 
+                    }
+                });
+            },
+            onApprove: function(data, actions) {
+                return actions.order.capture().then(function(details) {
+                    // After successful payment, redirect to the pending page
+                    window.location.href = '{{ paypal_data.return_url }}';
+                });
+            },
+            onCancel: function(data) {
+                // If the user cancels, redirect to the cancel page
+                window.location.href = '{{ paypal_data.cancel_url }}';
+            }
+        }).render('#paypal-button-container'); 
+
+    </script>
+</body>
+</html>

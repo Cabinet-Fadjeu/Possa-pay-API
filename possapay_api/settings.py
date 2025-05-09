@@ -47,6 +47,12 @@ ALLOWED_HOSTS = ['*']
 # CORS_ORIGIN_ALLOW_ALL = False
 # CORS_ALLOW_CREDENTIALS = True
 
+CORS_ALLOWED_ORIGINS = [
+    'https://cabinet-fadjeu.github.io/',
+]
+
+
+
 CSRF_TRUSTED_ORIGINS = [
     "https://6df7-154-72-162-154.ngrok-free.app",
     "https://www.paypal.com/ipn",
@@ -59,6 +65,9 @@ AUTH_USER_MODEL = 'userAuth.CustomUser'
 INSTALLED_APPS = [
     'core',
     'userAuth',
+    'api_core',
+
+    
     # "corsheaders",
     'django.contrib.admin',
     'django.contrib.auth',
@@ -66,6 +75,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
 
     'paypal.standard.ipn',
 ]
@@ -105,13 +115,23 @@ WSGI_APPLICATION = 'possapay_api.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql', 
+        'NAME': 'api_possapay_db',
+        'USER': 'admin',
+        'PASSWORD': '12345678',
+        'HOST': 'localhost',   # Or an IP Address that your DB is hosted on
+        'PORT': '3306',
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators

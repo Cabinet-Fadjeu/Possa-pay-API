@@ -1,0 +1,60 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'assets/css/api_core.css' %}">
+    
+    <title>Possa pay</title>
+</head>
+<body>
+    <main style="background-image: url('{% static 'assets/image/api-background-1.jpg' %}')">
+        <div class="center-handler">
+            <h1>Please complete your Card payment process. ({{payData.currency}} {{payData.amount}})</h1>
+            
+            <div class="line-seperator"></div>
+                <div class="modal-payment-container">
+                    <form id="payment-form" class="stripe-payment-form">
+                        <div id="card-element" class="stripe-payment-card"><!-- Stripe injects card input here --></div>
+                        <button id="submit">Pay</button>
+                        <div id="error-message" class="stripe-err-msg"></div>
+                    </form>
+                </div>
+            </div>
+    </main>
+    <script src="https://js.stripe.com/v3/"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const stripe = Stripe("{{ context.stripe_public_key }}");
+            const elements = stripe.elements();
+            const card = elements.create("card");
+            card.mount("#card-element");
+        
+            const form = document.getElementById("payment-form");
+        
+            form.addEventListener("submit", async (event) => {
+                event.preventDefault();
+        
+                const { error, paymentIntent } = await stripe.confirmCardPayment(
+                    "{{ context.client_secret }}",
+                    {
+                        payment_method: {
+                            card: card,
+                        }
+                    }
+                );
+        
+                if (error) {
+                    document.getElementById("error-message").textContent = error.message;
+                } else if (paymentIntent && paymentIntent.status === 'succeeded') {
+                    alert('Payment succeeded!');
+                    // Optionally redirect or update UI
+                }
+            });
+        });
+      </script>
+</body>
+</html>
